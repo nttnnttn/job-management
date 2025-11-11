@@ -1,10 +1,9 @@
-"use client";
 import React, { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useNavigate } from "react-router-dom";
 
 export default function RegisterPage() {
-  const router = useRouter();
-  const [email, setEmail] = useState(""); // ✅ đổi từ username -> email
+  const navigate = useNavigate();
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
 
@@ -17,15 +16,15 @@ export default function RegisterPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          email,      // ✅ backend yêu cầu "email"
-          password,   // ✅ backend yêu cầu "password"
+          email,
+          password,
         }),
       });
 
       const data = await res.json();
       if (res.ok) {
         setMessage("✅ Đăng ký thành công! Chuyển sang đăng nhập...");
-        setTimeout(() => router.push("/login"), 1500);
+        setTimeout(() => navigate("/login"), 1500);
       } else {
         setMessage(`❌ ${data.message || "Không thể đăng ký"}`);
       }
@@ -40,7 +39,7 @@ export default function RegisterPage() {
       <h2 style={styles.title}>Đăng ký tài khoản</h2>
       <form onSubmit={handleRegister} style={styles.form}>
         <div style={styles.inputGroup}>
-          <label>Email</label> {/* ✅ đổi label */}
+          <label>Email</label>
           <input
             type="email"
             value={email}
@@ -69,7 +68,7 @@ export default function RegisterPage() {
 
         <button
           type="button"
-          onClick={() => router.push("/login")}
+          onClick={() => navigate("/login")}
           style={{ ...styles.button, ...styles.loginBtn }}
         >
           Quay lại đăng nhập
