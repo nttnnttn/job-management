@@ -1,9 +1,8 @@
-"use client";
 import React, { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useNavigate } from "react-router-dom";
 
 export default function LoginPage() {
-  const router = useRouter();
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
@@ -27,8 +26,8 @@ export default function LoginPage() {
         setMessage("✅ Đăng nhập thành công!");
         console.log("Access Token:", data.access_token);
 
-        // Chuyển hướng sang trang chính (hoặc /profile)
-        setTimeout(() => router.push("/home"), 1500);
+        // Chuyển hướng sang trang chính (ví dụ /home)
+        setTimeout(() => navigate("/home"), 1500);
       } else {
         setMessage(`❌ ${data.detail || "Sai email hoặc mật khẩu!"}`);
       }
@@ -72,7 +71,7 @@ export default function LoginPage() {
 
         <button
           type="button"
-          onClick={() => router.push("/register")}
+          onClick={() => navigate("/register")}
           style={{ ...styles.button, ...styles.registerBtn }}
         >
           Đăng ký tài khoản mới
