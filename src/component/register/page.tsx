@@ -62,6 +62,18 @@ export default function RegisterPage() {
           />
         </div>
 
+        <div style={styles.inputGroup}>
+          <label>Xác nhận mật khẩu</label>
+          <input
+            type="password"
+            value={password}
+            placeholder="Nhập mật khẩu"
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            style={styles.input}
+          />
+        </div>
+
         <button type="submit" style={{ ...styles.button, ...styles.registerBtn }}>
           Đăng ký
         </button>
