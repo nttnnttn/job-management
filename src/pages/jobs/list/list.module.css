@@ -1,0 +1,131 @@
+.container {
+  max-width: 1200px;
+  margin: 40px auto;
+  padding: 0 16px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.title {
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+.newButton {
+  background: #2563eb;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: 0.15s;
+  box-shadow: 0px 2px 4px rgba(0,0,0,0.2);
+}
+
+.newButton:hover {
+  background: #1e40af;
+}
+
+.tableWrapper {
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0px 2px 8px rgba(0,0,0,0.05);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.thead {
+  background: #f5f5f5;
+  border-bottom: 1px solid #ddd;
+}
+
+.th {
+  padding: 12px;
+  text-align: left;
+  font-weight: 600;
+}
+
+.td {
+  padding: 12px;
+}
+
+.row {
+  border-bottom: 1px solid #eee;
+  transition: background 0.15s;
+}
+
+.row:hover {
+  background: #fafafa;
+}
+
+.actions {
+  display: flex;
+  gap: 14px;
+}
+
+.editBtn {
+  color: #2563eb;
+  cursor: pointer;
+  transition: 0.15s;
+}
+
+.editBtn:hover {
+  color: #1e40af;
+}
+
+.deleteBtn {
+  color: #dc2626;
+  cursor: pointer;
+  transition: 0.15s;
+}
+
+.deleteBtn:hover {
+  color: #b91c1c;
+}
+
+.noData {
+  text-align: center;
+  padding: 32px;
+  color: #666;
+}
+
+.pagination {
+  margin-top: 32px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 14px;
+}
+
+.pageButton {
+  padding: 8px 16px;
+  border: 1px solid #bbb;
+  border-radius: 8px;
+  background: #f3f3f3;
+  cursor: pointer;
+  transition: 0.15s;
+}
+
+.pageButton:hover {
+  background: #e5e5e5;
+}
+
+.pageButtonDisabled {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.pageText {
+  font-size: 18px;
+  font-weight: 500;
+}
