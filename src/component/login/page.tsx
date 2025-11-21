@@ -7,39 +7,44 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
 
-  const API_BASE = "https://job-candidate-management.onrender.com";
+  const API_BASE = process.env.REACT_APP_API_BASE;
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       const res = await fetch(`${API_BASE}/users/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
 
-      const data = await res.json();
+    const text = await res.text(); // server trả về chuỗi token
+    console.log("Dữ liệu trả về từ server:", text);
 
-      if (res.ok) {
-        // ✅ Lưu token vào localStorage
-        localStorage.setItem("access_token", data.access_token);
-        setMessage("✅ Đăng nhập thành công!");
-        console.log("Access Token:", data.access_token);
+    if (res.ok) {
+      // Xóa dấu ngoặc kép dư nếu có
+      const cleanedToken = text.replace(/^"|"$/g, "").trim();
 
-        // Chuyển hướng sang trang chính (ví dụ /home)
-        setTimeout(() => navigate("/home"), 1500);
-      } else {
-        setMessage(`❌ ${data.detail || "Sai email hoặc mật khẩu!"}`);
-      }
-    } catch (error) {
-      console.error(error);
-      setMessage("❌ Không thể kết nối tới server!");
+      // ✅ Lưu token chính xác
+      localStorage.setItem("access_token", cleanedToken);
+      console.log("Access Token lưu vào localStorage:", cleanedToken);
+
+      setMessage("✅ Đăng nhập thành công!");
+      setTimeout(() => navigate("/home"), 1500);
+    } else {
+      // ❌ Sửa lỗi cú pháp ở đây (dòng này đang sai trong code cũ)
+      setMessage("❌ Sai email hoặc mật khẩu!");
     }
+  } catch (error) {
+    console.error("Lỗi khi đăng nhập:", error);
+    setMessage("❌ Không thể kết nối tới server!");
+  }
   };
 
   return (
     <div style={styles.container}>
       <h2 style={styles.title}>Đăng nhập</h2>
+
       <form onSubmit={handleLogin} style={styles.form}>
         <div style={styles.inputGroup}>
           <label>Email</label>
@@ -78,7 +83,11 @@ export default function LoginPage() {
         </button>
       </form>
 
-      {message && <p style={{ marginTop: "20px", color: "#333" }}>{message}</p>}
+      {message && (
+        <p style={{ marginTop: "20px", color: "#333", textAlign: "center" }}>
+          {message}
+        </p>
+      )}
     </div>
   );
 }

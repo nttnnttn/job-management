@@ -5,12 +5,20 @@ export default function RegisterPage() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [message, setMessage] = useState("");
 
   const API_BASE = "https://job-candidate-management.onrender.com";
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Kiểm tra khớp mật khẩu trước khi gửi API
+    if (password !== confirmPassword) {
+      setMessage("❌ Mật khẩu xác nhận không khớp!");
+      return;
+    }
+
     try {
       const res = await fetch(`${API_BASE}/users/register`, {
         method: "POST",
@@ -66,9 +74,9 @@ export default function RegisterPage() {
           <label>Xác nhận mật khẩu</label>
           <input
             type="password"
-            value={password}
-            placeholder="Nhập mật khẩu"
-            onChange={(e) => setPassword(e.target.value)}
+            value={confirmPassword}
+            placeholder="Nhập lại mật khẩu"
+            onChange={(e) => setConfirmPassword(e.target.value)}
             required
             style={styles.input}
           />
