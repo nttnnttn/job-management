@@ -3,9 +3,14 @@ FROM node:18-alpine AS build
 
 WORKDIR /app
 COPY package*.json ./
-COPY .env .env
+
 RUN npm install
 COPY . .
+
+# Accept Render env vars as build args
+ARG REACT_APP_API_BASE
+ENV REACT_APP_API_BASE=$REACT_APP_API_BASE
+
 RUN npm run build
 
 # ---- Stage 2: Serve with Nginx ----
