@@ -1,95 +1,39 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
+import { useJobList } from "../../../hooks/jobs/useJobList";
+import { useDeleteJob } from "../../../hooks/jobs/useDeleteJob";
 import { useNavigate } from "react-router-dom";
+
 import styles from "./list.module.css";
 
-const API_BASE = process.env.REACT_APP_API_BASE;
-
 export default function JobListPage() {
+  const [search, setSearch] = useState("");
+  const { data, isLoading } = useJobList({ search });
+  const deleteJob = useDeleteJob();
   const navigate = useNavigate();
-
-  const [jobs, setJobs] = useState<any[]>([]);
-  const [page, setPage] = useState(1);
-  const [limit] = useState(10);
-  const [total, setTotal] = useState(0);
-
-  const loadJobs = async () => {
-    try {
-      const token = localStorage.getItem("access_token"); 
-
-      if (!token) {
-        console.error("❌ No token found");
-        return;
-      }
-
-      const res = await fetch(`${API_BASE}/jobs?page=${page}&limit=${limit}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (!res.ok) {
-        console.error("Failed to load jobs:", await res.text());
-        return;
-      }
-
-      const data = await res.json();
-      setJobs(data);
-      setTotal(data.length);
-    } catch (err) {
-      console.error("Failed to load jobs", err);
-    }
-  };
-
-  useEffect(() => {
-    loadJobs();
-  }, [page]);
-
-  const deleteJob = async (jobId: string) => {
-    if (!window.confirm("Delete this job?")) return;
-
-    try {
-      const token = localStorage.getItem("access_token");
-      if (!token) return alert("Missing token");
-
-      const res = await fetch(`${API_BASE}/jobs/${jobId}?jobId=${jobId}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      const text = await res.text();
-      console.log("Delete response:", text);
-
-      if (!res.ok) {
-        console.error("Delete failed:", await res.text());
-        alert("Delete failed");
-        return;
-      }
-
-      setJobs((prev) => prev.filter((job) => job._id !== jobId));
-
-      loadJobs();
-    } catch (err) {
-      console.error("Delete failed", err);
-    }
-  };
-
-  const totalPages = Math.ceil(total / limit);
 
   return (
     <div className={styles.container}>
       {/* Header */}
       <div className={styles.header}>
-        <h2 className={styles.title}>Jobs</h2>
+        <h1 className={styles.title}>Job List</h1>
 
         <button
-          onClick={() => navigate("/jobs/create")}
           className={styles.newButton}
+          onClick={() => navigate("/jobs/create")}
         >
-          + New Job
+          + Create Job
         </button>
       </div>
+
+      {/* Search */}
+      <input
+        placeholder="Search jobs…"
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        className="w-full p-3 border rounded mb-4"
+      />
+
+      {isLoading && <p>Loading...</p>}
 
       {/* Table */}
       <div className={styles.tableWrapper}>
@@ -97,6 +41,7 @@ export default function JobListPage() {
           <thead className={styles.thead}>
             <tr>
               <th className={styles.th}>Title</th>
+              <th className={styles.th}>Company</th>
               <th className={styles.th}>Location</th>
               <th className={styles.th}>Salary</th>
               <th className={styles.th}>Actions</th>
@@ -104,72 +49,46 @@ export default function JobListPage() {
           </thead>
 
           <tbody>
-            {jobs.length === 0 ? (
+            {data?.length === 0 && (
               <tr>
-                <td colSpan={4} className={styles.noData}>
-                  Không có job nào
+                <td colSpan={5} className={styles.noData}>
+                  No jobs found
                 </td>
               </tr>
-            ) : (
-              jobs.map((job) => (
-                <tr key={job._id} className={styles.row}>
-                  <td className={styles.td}>{job.title}</td>
-                  <td className={styles.td}>{job.location}</td>
-                  <td className={styles.td}>
-                    {job.salaryMin} - {job.salaryMax}
-                  </td>
-
-                  <td className={`${styles.td} ${styles.actions}`}>
-                    <button
-                      onClick={() => navigate(`/jobs/update/${job._id}`)}
-                      className={styles.editBtn}
-                    >
-                      ✏ Edit
-                    </button>
-
-                    <button
-                      onClick={() => deleteJob(job._id)}
-                      className={styles.deleteBtn}
-                    >
-                      🗑 Delete
-                    </button>
-                  </td>
-                </tr>
-              ))
             )}
+
+            {data?.map((job: any) => (
+              <tr key={job._id} className={styles.row}>
+                <td className={styles.td}>{job.title}</td>
+                <td className={styles.td}>{job.company}</td>
+                <td className={styles.td}>{job.location}</td>
+                <td className={styles.td}>
+                  {job.salaryMin
+                    ? `$${job.salaryMin} - $${job.salaryMax}`
+                    : "N/A"}
+                </td>
+
+                <td className={styles.td}>
+                  <div className={styles.actions}>
+                    <span
+                      className={styles.editBtn}
+                      onClick={() => navigate(`/jobs/update/${job._id}`)}
+                    >
+                      Edit
+                    </span>
+
+                    <span
+                      className={styles.deleteBtn}
+                      onClick={() => deleteJob.mutate(job._id)}
+                    >
+                      Delete
+                    </span>
+                  </div>
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
-      </div>
-
-      {/* Pagination */}
-      <div className={styles.pagination}>
-        <button
-          disabled={page === 1}
-          onClick={() => setPage(page - 1)}
-          className={
-            page === 1
-              ? `${styles.pageButton} ${styles.pageButtonDisabled}`
-              : styles.pageButton
-          }
-        >
-          Prev
-        </button>
-
-        <span className={styles.pageText}>
-          Page {page} / {totalPages || 1}
-        </span>
-
-        <button
-          disabled={page === totalPages}
-          onClick={() => setPage(page + 1)}
-          className={
-            page === totalPages
-              ? `${styles.pageButton} ${styles.pageButtonDisabled}`
-              : styles.pageButton
-          }
-        >
-          Next
-        </button>
       </div>
     </div>
   );
