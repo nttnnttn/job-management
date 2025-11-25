@@ -1,61 +1,48 @@
-.update-job-container {
+.container {
+  max-width: 900px;
+  margin: 40px auto;
+  padding: 0 16px;
+}
+
+.title {
+  font-size: 32px;
+  font-weight: 700;
+  margin-bottom: 24px;
+}
+
+.card {
+  background: white;
   padding: 24px;
-  max-width: 600px;
-  margin: 0 auto;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  border: 1px solid #eee;
 }
 
-.update-job-title {
-  font-size: 24px;
-  font-weight: bold;
-  margin-bottom: 16px;
-}
-
-.update-job-form {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+.label {
+  font-size: 14px;
+  font-weight: 600;
 }
 
 .input {
   width: 100%;
-  padding: 10px 12px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  font-size: 14px;
-}
-
-.textarea {
-  width: 100%;
-  padding: 10px 12px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  min-height: 100px;
-  font-size: 14px;
-}
-
-.select {
-  width: 100%;
-  padding: 10px 12px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-}
-
-.salary-group {
-  display: flex;
-  gap: 12px;
-}
-
-.btn-update {
-  background-color: #16a34a; /* green-600 */
-  color: white;
   padding: 12px;
-  border: none;
-  border-radius: 6px;
-  width: 100%;
-  cursor: pointer;
-  font-size: 15px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  margin: 10px 0 20px 0;
 }
 
-.btn-update:hover {
-  background-color: #15803d; /* green-700 */
+.button {
+  width: 100%;
+  padding: 14px;
+  background: #2563eb;
+  color: white;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  border: none;
+  transition: 0.2s;
+}
+
+.button:hover {
+  background: #1e40af;
 }
