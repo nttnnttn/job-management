@@ -6,11 +6,14 @@ export const useDeleteJob = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: deleteJob,
+    mutationFn: (jobId: string) => deleteJob(jobId),
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: jobKeys.lists(),
-      });
+      alert("Xóa job thành công!");
+      queryClient.invalidateQueries({ queryKey: jobKeys.lists() });
+    },
+    onError: (error: any) => {
+      console.error("Delete job failed:", error.response?.status, error.response?.data);
+      alert("Xóa job thất bại!");
     },
   });
 };

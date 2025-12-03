@@ -13,7 +13,7 @@ export const getJobs = async (params?: any) => {
  * GET /jobs/{jobId}
  */
 export const getJobById = async (jobId: string) => {
-  const res = await client.get(`/jobs/{jobId}?jobId=${jobId}`);
+  const res = await client.get(`/jobs/${jobId}?jobId=${jobId}`);
   return res.data;
 };
 
@@ -21,7 +21,7 @@ export const getJobById = async (jobId: string) => {
  * POST /jobs
  */
 export const createJob = async (payload: any) => {
-  const res = await client.post("/jobs", payload);
+  const res = await client.post(`/jobs`, payload);
   return res.data;
 };
 
@@ -35,7 +35,7 @@ export const updateJob = async ({
   jobId: string;
   payload: any;
 }) => {
-  const res = await client.put(`/jobs/${jobId}`, payload);
+  const res = await client.patch(`/jobs/{jobId}?jobId=${jobId}`, payload);
   return res.data;
 };
 
@@ -43,6 +43,6 @@ export const updateJob = async ({
  * DELETE /jobs/{jobId}
  */
 export const deleteJob = async (jobId: string) => {
-  const res = await client.delete(`/jobs/${jobId}`);
+  const res = await client.delete(`/jobs/{jobId}?jobId=${jobId}`);
   return res.data;
 };
