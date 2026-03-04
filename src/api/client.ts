@@ -1,8 +1,9 @@
 import axios from "axios";
+import { Api } from "./Api";
 
 const API_BASE = process.env.REACT_APP_API_BASE;
 
-const client = axios.create({
+const client = new Api({
   baseURL: API_BASE,
   headers: {
     "Content-Type": "application/json",
@@ -10,7 +11,7 @@ const client = axios.create({
 });
 
 // Attach token
-client.interceptors.request.use((config) => {
+client.instance.interceptors.request.use((config) => {
   const token = localStorage.getItem("access_token");
   if (token) {
     config.headers = config.headers || {};

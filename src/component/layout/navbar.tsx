@@ -1,8 +1,28 @@
 import React from "react";
 import { NavLink, useNavigate } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
+
+interface IUserToken {
+  sub: string;
+  email: string;
+  role: string;
+}
 
 export default function Navbar() {
   const navigate = useNavigate();
+
+  const token = localStorage.getItem("access_token");
+
+  let role: string | null = null;
+
+  if (token) {
+    try {
+      const decoded = jwtDecode<IUserToken>(token);
+      role = decoded.role;
+    } catch {
+      role = null;
+    }
+  }
 
   const handleLogout = () => {
     localStorage.removeItem("access_token");
@@ -12,16 +32,31 @@ export default function Navbar() {
   return (
     <nav style={styles.navbar}>
       <h2 style={styles.logo}>Job Management</h2>
+
       <div style={styles.links}>
-        <NavLink to="/users" style={styles.link}>
-          Users
-        </NavLink>
-        <NavLink to="/candidates" style={styles.link}>
-          Candidates
-        </NavLink>
-        <NavLink to="/jobs" style={styles.link}>
-          Jobs
-        </NavLink>
+        {/* Admin */}
+        {role === "admin" && (
+          <NavLink to="/users" style={styles.link}>
+            Users
+          </NavLink>
+        )}
+
+        {/* Candidate */}
+        {role === "candidate" && (
+          <NavLink to="/jobs" style={styles.link}>
+            Jobs
+          </NavLink>
+        )}
+
+        {/* Recruiter */}
+        {role === "recruiter" && (
+          <>
+            <NavLink to="/jobs" style={styles.link}>
+              Jobs
+            </NavLink>
+          </>
+        )}
+
         <button onClick={handleLogout} style={styles.logoutBtn}>
           Đăng xuất
         </button>
