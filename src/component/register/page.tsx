@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { UserRole } from "../../types/user";
-import client from "../../api/client";
 import { CreateUserDto } from "../../api/Api";
+import { authControllerRegister } from "../../api-client";
 
 export default function RegisterPage() {
   const navigate = useNavigate();
@@ -30,7 +30,7 @@ export default function RegisterPage() {
         email: email,
         role: role
       }
-      const res = await client.users.authControllerRegister(body);
+      const res = await authControllerRegister({body});
       /*const res = await fetch(`${API_BASE}/users/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -42,7 +42,7 @@ export default function RegisterPage() {
       }); */
 
       console.log(res);
-      if (res.ok) {
+      if (res.data) {
         navigate("/login", {
           state: { message: "Đăng ký thành công! Vui lòng đăng nhập." }
         });
