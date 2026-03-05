@@ -1,25 +1,23 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import api from "../api/client";
-import { CreateJobDto } from "../api/Api";
 
 // GET list
 export const useJobs = (page: number, limit: number) => {
   return useQuery({
     queryKey: ["jobs", page],
     queryFn: async () => {
-      const res = await api.jobs.jobsControllerFindAll();
+      const res = await api.get(`/jobs?page=${page}&limit=${limit}`);
       return res.data;
     },
   });
 };
-
 
 // GET one job
 export const useJob = (id: string) => {
   return useQuery({
     queryKey: ["job", id],
     queryFn: async () => {
-      const res = await api.jobs.jobsControllerFindOne(id);
+      const res = await api.get(`/jobs/${id}?jobId=${id}`);
       return res.data.job || res.data;
     },
   });
@@ -30,8 +28,8 @@ export const useCreateJob = () => {
   const client = useQueryClient();
 
   return useMutation({
-    mutationFn: async (payload: CreateJobDto) => {
-      const res = await api.jobs.jobsControllerCreate(payload);
+    mutationFn: async (payload: any) => {
+      const res = await api.post(`/jobs`, payload);
       return res.data;
     },
     onSuccess() {
@@ -46,7 +44,7 @@ export const useUpdateJob = (id: string) => {
 
   return useMutation({
     mutationFn: async (payload: any) => {
-      const res = await api.jobCandidate.jobCandidateControllerUpdate(id, payload);
+      const res = await api.patch(`/jobs/${id}?jobId=${id}`, payload);
       return res.data;
     },
     onSuccess() {
@@ -62,7 +60,7 @@ export const useDeleteJob = () => {
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const res = await api.jobs.jobsControllerRemove(id);
+      const res = await api.delete(`/jobs/${id}?jobId=${id}`);
       return res.data;
     },
     onSuccess() {
