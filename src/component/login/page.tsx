@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import client from "../../api/client";
 import { LoginReponseDto } from "../../api/Api";
+import { authControllerSignIn } from "../../api-client";
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -12,12 +13,11 @@ export default function LoginPage() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault(); //Ngăn reload
     try {
-    const res = await client.users.authControllerSignIn({email, password});
+    const res = await authControllerSignIn({ body: {email, password}});
 
-    console.log("Dữ liệu trả về từ server:", res );
-    if (res) {
+    if (res.data) {
       // Xóa dấu ngoặc kép dư nếu có
-      const cleanedToken = (res as LoginReponseDto).access_token;
+      const cleanedToken = res.data.access_token;
 
       // ✅ Lưu token chính xác
       localStorage.setItem("access_token", cleanedToken);
