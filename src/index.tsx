@@ -3,7 +3,7 @@ import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import App from "./App";
 import "./index.css";   // ← BẮT BUỘC để Tailwind chạy
-import { setupApiClient } from "./api-client/setup-client";
+import { setupApiClient } from "./configs/setup-client";
 
 setupApiClient()
 
