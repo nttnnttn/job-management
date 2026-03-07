@@ -5,7 +5,7 @@ import { client } from "../api-client/client.gen";
 
 export const setupApiClient = () => {
   // 1. Set Base URL (use import.meta.env for Vite or process.env for CRA)
-  const baseUrl = process.env.REACT_APP_API_URL || 'http://localhost:3000';
+  const baseUrl = process.env.REACT_APP_API_BASE || 'http://localhost:3000';
   
   client.setConfig({
     baseURL: baseUrl,

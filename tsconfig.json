@@ -19,7 +19,8 @@
     "isolatedModules": true,
      "downlevelIteration": true, // 👈 Add this flag as a fallback
     "noEmit": true,
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+    "types": ["vite/client", "node"] 
   },
   "include": [
     "src"

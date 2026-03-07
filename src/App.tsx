@@ -1,5 +1,5 @@
 import React from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, createBrowserRouter, RouterProvider } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 import LoginPage from "./component/login/page";
@@ -12,32 +12,31 @@ import CandidatesPage from "./pages/candidates/page";
 import JobListPage from "./pages/jobs/list/list";
 import CreateJobPage from "./pages/jobs/create/create";
 import UpdateJobPage from "./pages/jobs/update/update";
+import path from "path";
 
 // Tạo instance QueryClient
 const queryClient = new QueryClient();
 
+const router = createBrowserRouter([
+  { path: "/", element: <Navigate to="/login" /> },
+  { path: "/login", element: <LoginPage /> },
+  { path: "/register", element: <RegisterPage /> },
+  { element: <HomeLayout />, // The Parent Layout,
+    children: [
+      { path: "home", element: <h1>Home Page</h1> },
+      { path: "/users", element: <UsersPage /> },
+      { path: "/candidates", element: <CandidatesPage /> },
+      { path: "/jobs", element: <JobListPage />},
+      { path: "/jobs/create", element: <CreateJobPage /> },
+      { path: "/jobs/update/:id", element:<UpdateJobPage />}
+    ]
+  }
+]);
+
 export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <Routes>
-        {/* Khi mở root → tự chuyển về trang login */}
-        <Route path="/" element={<Navigate to="/login" />} />
-
-        {/* Auth routes */}
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
-
-        {/* Routes sau khi login (có Navbar) */}
-        <Route element={<HomeLayout />}>
-          <Route path="/home" element={<h1>Home Page</h1>} />
-
-          <Route path="/users" element={<UsersPage />} />
-          <Route path="/candidates" element={<CandidatesPage />} />
-          <Route path="/jobs" element={<JobListPage />} />
-          <Route path="/jobs/create" element={<CreateJobPage />} />
-          <Route path="/jobs/update/:id" element={<UpdateJobPage />} />
-        </Route>
-      </Routes>
+      <RouterProvider router={router} />;
     </QueryClientProvider>
   );
 }
