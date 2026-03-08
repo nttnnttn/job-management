@@ -10,4 +10,5 @@ export default defineConfig({
   plugins: [
     '@hey-api/client-axios',            // Explicitly enable Axios support
   ],
+  // Test
 });
