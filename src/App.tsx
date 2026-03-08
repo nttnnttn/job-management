@@ -19,16 +19,16 @@ const queryClient = new QueryClient();
 
 const router = createBrowserRouter([
   { path: "/", element: <Navigate to="/login" /> },
-  { path: "/login", element: <LoginPage /> },
-  { path: "/register", element: <RegisterPage /> },
+  { path: "login", element: <LoginPage /> },
+  { path: "register", element: <RegisterPage /> },
   { element: <HomeLayout />, // The Parent Layout,
     children: [
       { path: "home", element: <h1>Home Page</h1> },
-      { path: "/users", element: <UsersPage /> },
-      { path: "/candidates", element: <CandidatesPage /> },
-      { path: "/jobs", element: <JobListPage />},
-      { path: "/jobs/create", element: <CreateJobPage /> },
-      { path: "/jobs/update/:id", element:<UpdateJobPage />}
+      { path: "users", element: <UsersPage /> },
+      { path: "candidates", element: <CandidatesPage /> },
+      { path: "jobs", element: <JobListPage />},
+      { path: "jobs/create", element: <CreateJobPage /> },
+      { path: "jobs/update/:id", element:<UpdateJobPage />}
     ]
   }
 ]);
@@ -36,7 +36,7 @@ const router = createBrowserRouter([
 export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />;
+      <RouterProvider router={router} />
     </QueryClientProvider>
   );
 }

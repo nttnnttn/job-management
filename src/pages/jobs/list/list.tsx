@@ -11,11 +11,10 @@ export default function JobListPage() {
   const deleteJob = useDeleteJob();
   const navigate = useNavigate();
 
-  // Lấy role từ localStorage
   const role = localStorage.getItem("role");
 
-  // Quyền
-  const canCreate = role === "candidate" || role === "recruiter";
+  // recruiter mới được create/edit/delete
+  const canCreate = role === "recruiter";
   const canEditDelete = role === "recruiter";
 
   return (
@@ -24,7 +23,7 @@ export default function JobListPage() {
       <div className={styles.header}>
         <h1 className={styles.title}>Job List</h1>
 
-        {(role === "candidate" || role === "recruiter") && (
+        {canCreate && (
           <button
             className={styles.newButton}
             onClick={() => navigate("/jobs/create")}
@@ -53,8 +52,7 @@ export default function JobListPage() {
               <th className={styles.th}>Company</th>
               <th className={styles.th}>Location</th>
               <th className={styles.th}>Salary</th>
-              
-              {/* Chỉ recruiter mới thấy cột Actions */}
+
               {canEditDelete && (
                 <th className={styles.th}>Actions</th>
               )}
@@ -64,7 +62,7 @@ export default function JobListPage() {
           <tbody>
             {data?.length === 0 && (
               <tr>
-                <td colSpan={5} className={styles.noData}>
+                <td colSpan={canEditDelete ? 5 : 4} className={styles.noData}>
                   No jobs found
                 </td>
               </tr>
@@ -75,29 +73,34 @@ export default function JobListPage() {
                 <td className={styles.td}>{job.title}</td>
                 <td className={styles.td}>{job.company}</td>
                 <td className={styles.td}>{job.location}</td>
+
                 <td className={styles.td}>
                   {job.salaryMin
                     ? `$${job.salaryMin} - $${job.salaryMax}`
                     : "N/A"}
                 </td>
 
-                <td className={styles.td}>
-                  <div className={styles.actions}>
-                    <span
-                      className={styles.editBtn}
-                      onClick={() => navigate(`/jobs/update/${job._id}`)}
-                    >
-                      Edit
-                    </span>
+                {canEditDelete && (
+                  <td className={styles.td}>
+                    <div className={styles.actions}>
+                      <span
+                        className={styles.editBtn}
+                        onClick={() =>
+                          navigate(`/jobs/update/${job._id}`)
+                        }
+                      >
+                        Edit
+                      </span>
 
-                    <span
-                      className={styles.deleteBtn}
-                      onClick={() => deleteJob.mutate(job._id)}
-                    >
-                      Delete
-                    </span>
-                  </div>
-                </td>
+                      <span
+                        className={styles.deleteBtn}
+                        onClick={() => deleteJob.mutate(job._id)}
+                      >
+                        Delete
+                      </span>
+                    </div>
+                  </td>
+                )}
               </tr>
             ))}
           </tbody>

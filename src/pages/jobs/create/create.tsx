@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCreateJob } from "../../../hooks/jobs/useCreateJob";
 import styles from "./create.module.css";
@@ -15,6 +15,14 @@ export default function CreateJobPage() {
   const [description, setDescription] = useState("");
   const [successMessage, setSuccessMessage] = useState(false); // dùng boolean
   const [fadeOut, setFadeOut] = useState(false); // kiểm soát fade
+
+  useEffect(() => {
+    const role = localStorage.getItem("role");
+
+    if (role !== "recruiter") {
+      navigate("/jobs");
+    }
+  }, []);
 
   const handleSubmit = () => {
     if (!title.trim()) return;
