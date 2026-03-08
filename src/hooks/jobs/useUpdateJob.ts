@@ -7,7 +7,7 @@ export const useUpdateJob = () => {
 
   return useMutation({
     mutationFn: ({ jobId, payload }: { jobId: string; payload: any }) =>
-      updateJob({ jobId, payload }),
+      updateJob({ jobId, bodyJob: payload }),
     onSuccess: (_data, variables) => {
       alert("Update thành công!");
       queryClient.invalidateQueries({ queryKey: jobKeys.detail(variables.jobId) });

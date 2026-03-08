@@ -11,18 +11,27 @@ export default function JobListPage() {
   const deleteJob = useDeleteJob();
   const navigate = useNavigate();
 
+  // Lấy role từ localStorage
+  const role = localStorage.getItem("role");
+
+  // Quyền
+  const canCreate = role === "candidate" || role === "recruiter";
+  const canEditDelete = role === "recruiter";
+
   return (
     <div className={styles.container}>
       {/* Header */}
       <div className={styles.header}>
         <h1 className={styles.title}>Job List</h1>
 
-        <button
-          className={styles.newButton}
-          onClick={() => navigate("/jobs/create")}
-        >
-          + Create Job
-        </button>
+        {(role === "candidate" || role === "recruiter") && (
+          <button
+            className={styles.newButton}
+            onClick={() => navigate("/jobs/create")}
+          >
+            + Create Job
+          </button>
+        )}
       </div>
 
       {/* Search */}
@@ -44,7 +53,11 @@ export default function JobListPage() {
               <th className={styles.th}>Company</th>
               <th className={styles.th}>Location</th>
               <th className={styles.th}>Salary</th>
-              <th className={styles.th}>Actions</th>
+              
+              {/* Chỉ recruiter mới thấy cột Actions */}
+              {canEditDelete && (
+                <th className={styles.th}>Actions</th>
+              )}
             </tr>
           </thead>
 

@@ -1,7 +1,5 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import client from "../../api/client";
-import { LoginReponseDto } from "../../api/Api";
 import { authControllerSignIn } from "../../api-client";
 
 export default function LoginPage() {
