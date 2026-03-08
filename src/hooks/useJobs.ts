@@ -1,13 +1,14 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import api from "../api/client";
+import { createJob, deleteJob, getJobById, getJobs, updateJob } from "../api/jobs.api";
+import { CreateJobDto, UpdateJobDto } from "../api-client";
 
 // GET list
-export const useJobs = (page: number, limit: number) => {
+export const paginationJobs = (page: number, limit: number) => {
   return useQuery({
     queryKey: ["jobs", page],
     queryFn: async () => {
-      const res = await api.get(`/jobs?page=${page}&limit=${limit}`);
-      return res.data;
+      const data = await getJobs();
+      return data;
     },
   });
 };
@@ -17,8 +18,8 @@ export const useJob = (id: string) => {
   return useQuery({
     queryKey: ["job", id],
     queryFn: async () => {
-      const res = await api.get(`/jobs/${id}?jobId=${id}`);
-      return res.data.job || res.data;
+      const data = await getJobById(id);
+      return data;
     },
   });
 };
@@ -28,9 +29,9 @@ export const useCreateJob = () => {
   const client = useQueryClient();
 
   return useMutation({
-    mutationFn: async (payload: any) => {
-      const res = await api.post(`/jobs`, payload);
-      return res.data;
+    mutationFn: async (payload: CreateJobDto) => {
+      const res = await createJob(payload);
+      return res;
     },
     onSuccess() {
       client.invalidateQueries({ queryKey: ["jobs"] });
@@ -43,9 +44,9 @@ export const useUpdateJob = (id: string) => {
   const client = useQueryClient();
 
   return useMutation({
-    mutationFn: async (payload: any) => {
-      const res = await api.patch(`/jobs/${id}?jobId=${id}`, payload);
-      return res.data;
+    mutationFn: async (payload: UpdateJobDto) => {
+      const res = await updateJob({jobId: id , bodyJob: payload});
+      return res;
     },
     onSuccess() {
       client.invalidateQueries({ queryKey: ["jobs"] });
@@ -60,8 +61,8 @@ export const useDeleteJob = () => {
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const res = await api.delete(`/jobs/${id}?jobId=${id}`);
-      return res.data;
+      const res = await deleteJob(id);
+      return res;
     },
     onSuccess() {
       client.invalidateQueries({ queryKey: ["jobs"] });

@@ -6,11 +6,16 @@ export const useUpdateJob = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: updateJob,
-    onSuccess: (_, { jobId }) => {
-      queryClient.invalidateQueries({ queryKey: jobKeys.detail(jobId) });
+    mutationFn: ({ jobId, payload }: { jobId: string; payload: any }) =>
+      updateJob({ jobId, bodyJob: payload }),
+    onSuccess: (_data, variables) => {
+      alert("Update thành công!");
+      queryClient.invalidateQueries({ queryKey: jobKeys.detail(variables.jobId) });
       queryClient.invalidateQueries({ queryKey: jobKeys.lists() });
+    },
+    onError: (error: any) => {
+      console.error("Update job failed:", error.response?.status, error.response?.data);
+      alert("Update thất bại!");
     },
   });
 };
-

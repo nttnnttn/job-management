@@ -1,11 +1,11 @@
-import client from "./client";
+import { CreateJobDto, jobsControllerCreate, jobsControllerFindAll, jobsControllerFindOne, jobsControllerRemove, jobsControllerUpdate, UpdateJobDto } from "../api-client";
 
 /**
  * GET /jobs?query
  */
+// const res = await authControllerSignIn({ body: {email, password}});
 export const getJobs = async (params?: any) => {
-  const query = new URLSearchParams(params).toString();
-  const res = await client.get(`/jobs?${query}`);
+  const res = await jobsControllerFindAll({query: params});
   return res.data;
 };
 
@@ -13,15 +13,15 @@ export const getJobs = async (params?: any) => {
  * GET /jobs/{jobId}
  */
 export const getJobById = async (jobId: string) => {
-  const res = await client.get(`/jobs/{jobId}?jobId=${jobId}`);
+  const res = await jobsControllerFindOne({path: {id: jobId}});
   return res.data;
 };
 
 /**
  * POST /jobs
  */
-export const createJob = async (payload: any) => {
-  const res = await client.post("/jobs", payload);
+export const createJob = async (createJob: CreateJobDto) => {
+  const res = await jobsControllerCreate({body: createJob});
   return res.data;
 };
 
@@ -30,12 +30,12 @@ export const createJob = async (payload: any) => {
  */
 export const updateJob = async ({
   jobId,
-  payload,
+  bodyJob,
 }: {
   jobId: string;
-  payload: any;
+  bodyJob: UpdateJobDto;
 }) => {
-  const res = await client.put(`/jobs/${jobId}`, payload);
+  const res = await jobsControllerUpdate({path: {id: jobId}, body: bodyJob});
   return res.data;
 };
 
@@ -43,6 +43,6 @@ export const updateJob = async ({
  * DELETE /jobs/{jobId}
  */
 export const deleteJob = async (jobId: string) => {
-  const res = await client.delete(`/jobs/${jobId}`);
+  const res = await jobsControllerRemove({path: {id: jobId}});
   return res.data;
 };

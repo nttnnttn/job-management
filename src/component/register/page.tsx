@@ -1,14 +1,17 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { UserRole } from "../../types/user";
+import { authControllerRegister, CreateUserDto } from "../../api-client";
 
 export default function RegisterPage() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [role, setRole] = useState<UserRole>("candidate");
   const [message, setMessage] = useState("");
 
-  const API_BASE = "https://job-candidate-management.onrender.com";
+  const API_BASE = process.env.REACT_APP_API_BASE;
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -18,23 +21,32 @@ export default function RegisterPage() {
       setMessage("❌ Mật khẩu xác nhận không khớp!");
       return;
     }
+    // const res = await client.users.authControllerSignIn({email, password});
 
     try {
-      const res = await fetch(`${API_BASE}/users/register`, {
+      const body: CreateUserDto = {
+        password: password,
+        email: email,
+        role: role
+      }
+      const res = await authControllerRegister({body});
+      /*const res = await fetch(`${API_BASE}/users/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           email,
           password,
+          role,
         }),
-      });
+      }); */
 
-      const data = await res.json();
-      if (res.ok) {
-        setMessage("✅ Đăng ký thành công! Chuyển sang đăng nhập...");
-        setTimeout(() => navigate("/login"), 1500);
+      console.log(res);
+      if (res.data) {
+        navigate("/login", {
+          state: { message: "Đăng ký thành công! Vui lòng đăng nhập." }
+        });
       } else {
-        setMessage(`❌ ${data.message || "Không thể đăng ký"}`);
+        setMessage(`❌ ${ "Không thể đăng ký"}`);
       }
     } catch (error) {
       console.error(error);
@@ -80,6 +92,18 @@ export default function RegisterPage() {
             required
             style={styles.input}
           />
+        </div>
+
+        <div style={styles.inputGroup}>
+          <label>Vai trò</label>
+          <select
+            value={role}
+            onChange={(e) => setRole(e.target.value as UserRole)}
+            style={styles.input}
+          >
+            <option value="candidate">Candidate</option>
+            <option value="recruiter">Recruiter</option>
+          </select>
         </div>
 
         <button type="submit" style={{ ...styles.button, ...styles.registerBtn }}>

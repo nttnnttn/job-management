@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { authControllerSignIn } from "../../api-client";
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -7,30 +8,21 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
 
-  const API_BASE = process.env.REACT_APP_API_BASE;
-
   const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault(); //Ngăn reload
     try {
-      const res = await fetch(`${API_BASE}/users/login`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
-    });
+    const res = await authControllerSignIn({ body: {email, password}});
 
-    const text = await res.text(); // server trả về chuỗi token
-    console.log("Dữ liệu trả về từ server:", text);
-
-    if (res.ok) {
+    if (res.data) {
       // Xóa dấu ngoặc kép dư nếu có
-      const cleanedToken = text.replace(/^"|"$/g, "").trim();
+      const cleanedToken = res.data.access_token;
 
       // ✅ Lưu token chính xác
       localStorage.setItem("access_token", cleanedToken);
       console.log("Access Token lưu vào localStorage:", cleanedToken);
 
       setMessage("✅ Đăng nhập thành công!");
-      setTimeout(() => navigate("/home"), 1500);
+      setTimeout(() => navigate("/home"), 1500); //Chuyển hướng
     } else {
       // ❌ Sửa lỗi cú pháp ở đây (dòng này đang sai trong code cũ)
       setMessage("❌ Sai email hoặc mật khẩu!");
