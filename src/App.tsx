@@ -28,7 +28,9 @@ const router = createBrowserRouter([
       { path: "candidates", element: <CandidatesPage /> },
       { path: "jobs", element: <JobListPage />},
       { path: "jobs/create", element: <CreateJobPage /> },
-      { path: "jobs/update/:id", element:<UpdateJobPage />}
+      { path: "jobs/update/:id", element:<UpdateJobPage />},
+
+      { path: "candidates/:jobId", element: <CandidatesPage /> },
     ]
   }
 ]);

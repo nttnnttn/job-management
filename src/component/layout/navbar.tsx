@@ -36,9 +36,19 @@ export default function Navbar() {
       <div style={styles.links}>
         {/* Admin */}
         {role === "admin" && (
-          <NavLink to="/users" style={styles.link}>
-            Users
-          </NavLink>
+          <>
+            <NavLink to="/users" style={styles.link}>
+              Users
+            </NavLink>
+
+            <NavLink to="/jobs" style={styles.link}>
+              Jobs
+            </NavLink>
+
+            <NavLink to="/candidates" style={styles.link}>
+              Candidates
+            </NavLink>
+          </>
         )}
 
         {/* Candidate */}
@@ -53,6 +63,10 @@ export default function Navbar() {
           <>
             <NavLink to="/jobs" style={styles.link}>
               Jobs
+            </NavLink>
+
+            <NavLink to="/candidates" style={styles.link}>
+              Candidates
             </NavLink>
           </>
         )}
