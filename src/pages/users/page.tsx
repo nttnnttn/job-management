@@ -1,79 +1,44 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { jwtDecode } from "jwt-decode";
 
-interface IUserToken {
-  sub: string;
-  email: string;
-  role: string;
-}
-
-interface User {
-  _id: string;
-  email: string;
-  role: string;
-  active: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
+import { useAuth } from "../../hooks/useAuth";
+import { UserDto, usersControllerGetAllUsers } from "../../api-client";
 
 export default function UsersPage() {
   const navigate = useNavigate();
+  const auth = useAuth();
 
-  const [users, setUsers] = useState<User[]>([]);
+  const [users, setUsers] = useState<UserDto[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-
-  const API_BASE = process.env.REACT_APP_API_BASE;
-
+ 
   useEffect(() => {
-    const token = localStorage.getItem("access_token");
 
     // chưa login
-    if (!token) {
+    if (!auth) {
       navigate("/login");
       return;
     }
 
-    try {
-      const decoded: IUserToken = jwtDecode(token);
-
-      // không phải admin
-      if (decoded.role !== "admin") {
-        navigate("/jobs");
-        return;
-      }
-
-      fetchUsers(token);
-    } catch {
-      navigate("/login");
+    // không phải admin
+    if (auth.role !== "admin") {
+      navigate("/jobs");
+      return;
     }
-  }, [navigate]);
 
-  const fetchUsers = async (token: string) => {
+    fetchUsers();
+  }, [auth, navigate]);
+
+    const fetchUsers = async () => {
     try {
-      const response = await fetch(`${API_BASE}/users`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const res = await usersControllerGetAllUsers();
 
-      if (!response.ok) {
-        throw new Error("Không thể lấy danh sách người dùng");
-      }
-
-      const data = await response.json();
-
-      console.log("Users API:", data);
-
-      if (Array.isArray(data)) {
-        setUsers(data);
-      } else if (Array.isArray(data.results)) {
-        setUsers(data.results);
+      if (res.data && Array.isArray(res.data)) {
+        setUsers(res.data as UserDto[]);
       } else {
         setUsers([]);
       }
-    } catch (err: any) {
+    } catch (err) {
       console.error(err);
       setError("Không thể tải danh sách người dùng");
     } finally {
@@ -112,7 +77,7 @@ export default function UsersPage() {
 
           <tbody>
             {users.map((u) => (
-              <tr key={u._id}>
+              <tr key={String(u._id)}>
                 <td>{u.email}</td>
                 <td>{u.role}</td>
                 <td>{u.active ? "✅" : "❌"}</td>

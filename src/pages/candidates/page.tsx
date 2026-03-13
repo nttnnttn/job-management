@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { candidatesControllerFindAll } from "../../api-client";
 
 interface Candidate {
   _id: string;
@@ -18,29 +19,23 @@ export default function CandidatesPage() {
   const token = localStorage.getItem("access_token");
 
   useEffect(() => {
-    const url = jobId
-      ? `${API_BASE}/jobs/${jobId}/candidates`
-      : `${API_BASE}/candidates`;
-
-    fetch(url, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        console.log("API response:", data);
-
-        const result = Array.isArray(data) ? data : data.data || [];
-        setCandidates(result);
-
+    const fetchCandidates = async () => {
+      try {
+        const res = await candidatesControllerFindAll();
+        if (res.data && Array.isArray(res.data)) {
+          setCandidates(res.data as Candidate[]);
+        } else {
+          setCandidates([]);
+        }
+      } catch (error) {
+        console.error("Error fetching candidates:", error);
+      } finally {
         setLoading(false);
-      })
-      .catch((err) => {
-        console.error(err);
-        setLoading(false);
-      });
-  }, [jobId]);
+      }
+    };
+
+    fetchCandidates();
+  }, []);
 
   if (loading) {
     return <p style={{ textAlign: "center", marginTop: 80 }}>Loading candidates...</p>;

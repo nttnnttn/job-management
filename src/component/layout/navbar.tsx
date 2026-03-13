@@ -1,28 +1,12 @@
 import React from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
-
-interface IUserToken {
-  sub: string;
-  email: string;
-  role: string;
-}
+import { useAuth } from "../../hooks/useAuth";
 
 export default function Navbar() {
   const navigate = useNavigate();
-
-  const token = localStorage.getItem("access_token");
-
-  let role: string | null = null;
-
-  if (token) {
-    try {
-      const decoded = jwtDecode<IUserToken>(token);
-      role = decoded.role;
-    } catch {
-      role = null;
-    }
-  }
+  const user = useAuth();
+  const role = user?.role;
 
   const handleLogout = () => {
     localStorage.removeItem("access_token");

@@ -1,6 +1,8 @@
 import React from "react";
 import { Routes, Route, Navigate, createBrowserRouter, RouterProvider } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 import LoginPage from "./component/login/page";
 import RegisterPage from "./component/register/page";
@@ -39,6 +41,15 @@ export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <RouterProvider router={router} />
+
+      {/* Toast hiển thị toàn app */}
+      <ToastContainer
+        position="top-right"
+        autoClose={2000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        pauseOnHover aria-label={undefined}      />
     </QueryClientProvider>
   );
 }

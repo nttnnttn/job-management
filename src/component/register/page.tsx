@@ -11,8 +11,6 @@ export default function RegisterPage() {
   const [role, setRole] = useState<UserRole>("candidate");
   const [message, setMessage] = useState("");
 
-  const API_BASE = process.env.REACT_APP_API_BASE;
-
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
 

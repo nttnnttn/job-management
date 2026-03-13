@@ -6,14 +6,15 @@ export interface IUserToken {
   role: string;
 }
 
-export function useAuth() {
-  const token = localStorage.getItem("token");
+export function useAuth(): IUserToken | null {
+  const token = localStorage.getItem("access_token");
 
   if (!token) return null;
 
   try {
     return jwtDecode<IUserToken>(token);
-  } catch {
+  } catch (error) {
+    console.error("Token decode error:", error);
     return null;
   }
 }
