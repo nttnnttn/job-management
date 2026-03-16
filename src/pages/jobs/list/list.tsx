@@ -2,8 +2,13 @@ import React, { useState } from "react";
 import { useJobList } from "../../../hooks/jobs/useJobList";
 import { useDeleteJob } from "../../../hooks/jobs/useDeleteJob";
 import { useNavigate } from "react-router-dom";
+import { jwtDecode, JwtPayload } from "jwt-decode";
 
 import styles from "./list.module.css";
+
+interface MyTokenPayload extends JwtPayload {
+  role?: string;
+}
 
 export default function JobListPage() {
   const [search, setSearch] = useState("");
@@ -11,12 +16,27 @@ export default function JobListPage() {
   const deleteJob = useDeleteJob();
   const navigate = useNavigate();
 
-  // Lấy role từ localStorage
-  const role = localStorage.getItem("role");
+  let role: string | undefined = undefined;
 
-  // Quyền
-  const canCreate = role === "candidate" || role === "recruiter";
+  const accessToken = localStorage.getItem("access_token");
+
+  try {
+    if (accessToken != null) {
+      const decoded = jwtDecode<MyTokenPayload>(accessToken);
+      role = decoded.role;
+    }
+  } catch (error) {
+    console.error("Token không hợp lệ:", error);
+  }
+
+  const canCreate = role === "recruiter";
   const canEditDelete = role === "recruiter";
+
+  const handleDelete = (id: string) => {
+    if (window.confirm("Are you sure to delete this job?")) {
+      deleteJob.mutate(id);
+    }
+  };
 
   return (
     <div className={styles.container}>
@@ -24,7 +44,7 @@ export default function JobListPage() {
       <div className={styles.header}>
         <h1 className={styles.title}>Job List</h1>
 
-        {(role === "candidate" || role === "recruiter") && (
+        {canCreate && (
           <button
             className={styles.newButton}
             onClick={() => navigate("/jobs/create")}
@@ -36,15 +56,14 @@ export default function JobListPage() {
 
       {/* Search */}
       <input
-        placeholder="Search jobs…"
+        placeholder="Search jobs..."
         value={search}
         onChange={(e) => setSearch(e.target.value)}
         className="w-full p-3 border rounded mb-4"
       />
 
-      {isLoading && <p>Loading...</p>}
+      {isLoading && <p>Loading jobs...</p>}
 
-      {/* Table */}
       <div className={styles.tableWrapper}>
         <table className={styles.table}>
           <thead className={styles.thead}>
@@ -52,19 +71,21 @@ export default function JobListPage() {
               <th className={styles.th}>Title</th>
               <th className={styles.th}>Company</th>
               <th className={styles.th}>Location</th>
-              <th className={styles.th}>Salary</th>
-              
-              {/* Chỉ recruiter mới thấy cột Actions */}
-              {canEditDelete && (
-                <th className={styles.th}>Actions</th>
-              )}
+              <th className={styles.th}>Status</th>
+              <th className={styles.th}>Salary Min</th>
+              <th className={styles.th}>Salary Max</th>
+              <th className={styles.th}>Description</th>
+              <th className={styles.th}>Created At</th>
+              <th className={styles.th}>Updated At</th>
+
+              {canEditDelete && <th className={styles.th}>Actions</th>}
             </tr>
           </thead>
 
           <tbody>
             {data?.length === 0 && (
               <tr>
-                <td colSpan={5} className={styles.noData}>
+                <td colSpan={10} className={styles.noData}>
                   No jobs found
                 </td>
               </tr>
@@ -75,29 +96,52 @@ export default function JobListPage() {
                 <td className={styles.td}>{job.title}</td>
                 <td className={styles.td}>{job.company}</td>
                 <td className={styles.td}>{job.location}</td>
+                <td className={styles.td}>{job.status}</td>
+
                 <td className={styles.td}>
-                  {job.salaryMin
-                    ? `$${job.salaryMin} - $${job.salaryMax}`
-                    : "N/A"}
+                  {job.salaryMin ? `$${job.salaryMin}` : "N/A"}
                 </td>
 
                 <td className={styles.td}>
-                  <div className={styles.actions}>
-                    <span
-                      className={styles.editBtn}
-                      onClick={() => navigate(`/jobs/update/${job._id}`)}
-                    >
-                      Edit
-                    </span>
-
-                    <span
-                      className={styles.deleteBtn}
-                      onClick={() => deleteJob.mutate(job._id)}
-                    >
-                      Delete
-                    </span>
-                  </div>
+                  {job.salaryMax ? `$${job.salaryMax}` : "N/A"}
                 </td>
+
+                <td className={styles.td}>{job.description}</td>
+
+                <td className={styles.td}>
+                  {new Date(job.createdAt).toLocaleString()}
+                </td>
+
+                <td className={styles.td}>
+                  {new Date(job.updatedAt).toLocaleString()}
+                </td>
+
+                {canEditDelete && (
+                  <td className={styles.td}>
+                    <div className={styles.actions}>
+                      <button
+                        className={styles.editBtn}
+                        onClick={() => navigate(`/jobs/update/${job._id}`)}
+                      >
+                        ✏️ Edit
+                      </button>
+
+                      <button
+                        className={styles.deleteBtn}
+                        onClick={() => handleDelete(job._id)}
+                      >
+                        🗑 Delete
+                      </button>
+
+                      <button
+                        className={styles.viewBtn}
+                        onClick={() => navigate(`/candidates/${job._id}`)}
+                      >
+                        👥 Candidates
+                      </button>
+                    </div>
+                  </td>
+                )}
               </tr>
             ))}
           </tbody>

@@ -1,7 +1,12 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { jwtDecode, JwtPayload } from "jwt-decode";
 import { useCreateJob } from "../../../hooks/jobs/useCreateJob";
 import styles from "./create.module.css";
+
+interface MyTokenPayload extends JwtPayload {
+  role?: string;
+}
 
 export default function CreateJobPage() {
   const navigate = useNavigate();
@@ -13,8 +18,29 @@ export default function CreateJobPage() {
   const [salaryMin, setSalaryMin] = useState("");
   const [salaryMax, setSalaryMax] = useState("");
   const [description, setDescription] = useState("");
-  const [successMessage, setSuccessMessage] = useState(false); // dùng boolean
-  const [fadeOut, setFadeOut] = useState(false); // kiểm soát fade
+
+  const [successMessage, setSuccessMessage] = useState(false);
+  const [fadeOut, setFadeOut] = useState(false);
+
+  // 🔐 Check recruiter role
+  useEffect(() => {
+    const token = localStorage.getItem("access_token");
+
+    if (!token) {
+      navigate("/login");
+      return;
+    }
+
+    try {
+      const decoded = jwtDecode<MyTokenPayload>(token);
+
+      if (decoded.role !== "recruiter") {
+        navigate("/jobs");
+      }
+    } catch {
+      navigate("/login");
+    }
+  }, [navigate]);
 
   const handleSubmit = () => {
     if (!title.trim()) return;
@@ -33,10 +59,10 @@ export default function CreateJobPage() {
         onSuccess: () => {
           setSuccessMessage(true);
 
-          // fade out sau 1s
+          // fade out
           setTimeout(() => setFadeOut(true), 1000);
 
-          // chuyển hướng sau 2s
+          // redirect
           setTimeout(() => navigate("/jobs"), 2000);
         },
       }
@@ -47,7 +73,7 @@ export default function CreateJobPage() {
     <div className={styles.container}>
       <h1 className={styles.title}>Create Job</h1>
 
-      {/* Thông báo tạo thành công */}
+      {/* Success Message */}
       {successMessage && (
         <div
           className={styles.successMessage}
@@ -91,7 +117,7 @@ export default function CreateJobPage() {
           />
         </div>
 
-        {/* Salary Min + Max */}
+        {/* Salary */}
         <div className={styles.row}>
           <div style={{ flex: 1 }}>
             <label className={styles.label}>Salary Min</label>

@@ -1,6 +1,8 @@
 import React from "react";
 import { Routes, Route, Navigate, createBrowserRouter, RouterProvider } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 import LoginPage from "./component/login/page";
 import RegisterPage from "./component/register/page";
@@ -19,16 +21,18 @@ const queryClient = new QueryClient();
 
 const router = createBrowserRouter([
   { path: "/", element: <Navigate to="/login" /> },
-  { path: "/login", element: <LoginPage /> },
-  { path: "/register", element: <RegisterPage /> },
+  { path: "login", element: <LoginPage /> },
+  { path: "register", element: <RegisterPage /> },
   { element: <HomeLayout />, // The Parent Layout,
     children: [
       { path: "home", element: <h1>Home Page</h1> },
-      { path: "/users", element: <UsersPage /> },
-      { path: "/candidates", element: <CandidatesPage /> },
-      { path: "/jobs", element: <JobListPage />},
-      { path: "/jobs/create", element: <CreateJobPage /> },
-      { path: "/jobs/update/:id", element:<UpdateJobPage />}
+      { path: "users", element: <UsersPage /> },
+      { path: "candidates", element: <CandidatesPage /> },
+      { path: "jobs", element: <JobListPage />},
+      { path: "jobs/create", element: <CreateJobPage /> },
+      { path: "jobs/update/:id", element:<UpdateJobPage />},
+
+      { path: "candidates/:jobId", element: <CandidatesPage /> },
     ]
   }
 ]);
@@ -36,7 +40,16 @@ const router = createBrowserRouter([
 export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />;
+      <RouterProvider router={router} />
+
+      {/* Toast hiển thị toàn app */}
+      <ToastContainer
+        position="top-right"
+        autoClose={2000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        pauseOnHover aria-label={undefined}      />
     </QueryClientProvider>
   );
 }

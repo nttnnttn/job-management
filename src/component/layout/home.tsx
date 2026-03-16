@@ -1,17 +1,18 @@
 import React, { useEffect } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import Navbar from "./navbar";
+import { useAuth } from "../../hooks/useAuth";
 
 export default function HomeLayout() {
   const navigate = useNavigate(); //điều hướng sang trang
+  const user = useAuth();
 
   //kiểm tra đăng nhập
   useEffect(() => {
-    const token = localStorage.getItem("access_token");
-    if (!token) {
-      navigate("/login");
+    if (!user) {
+      navigate("/login", { replace: true });
     }
-  }, [navigate]);
+  }, [user, navigate]);
 
   //Navbar: cố định. Outlet: nội dung động
   return (

@@ -1,4 +1,10 @@
-import { CreateJobDto, jobsControllerCreate, jobsControllerFindAll, jobsControllerFindOne, jobsControllerRemove, jobsControllerUpdate, UpdateJobDto } from "../api-client";
+import { CreateJobDto, 
+  jobsControllerCreate, 
+  jobsControllerFindAll, 
+  jobsControllerFindOne, 
+  jobsControllerRemove, 
+  jobsControllerUpdate, 
+  UpdateJobDto } from "../api-client";
 
 /**
  * GET /jobs?query

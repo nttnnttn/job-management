@@ -1,71 +1,88 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+import { useAuth } from "../../hooks/useAuth";
+import { UserDto, usersControllerGetAllUsers } from "../../api-client";
+
 export default function UsersPage() {
   const navigate = useNavigate();
-  const [users, setUsers] = useState<any[]>([]);
+  const auth = useAuth();
+
+  const [users, setUsers] = useState<UserDto[]>([]);
   const [loading, setLoading] = useState(true);
-
-  const API_BASE = process.env.REACT_APP_API_BASE;
-
+  const [error, setError] = useState("");
+ 
   useEffect(() => {
-    const fetchUsers = async () => {
-      const token = localStorage.getItem("access_token");
-      if (!token) {
-        navigate("/login");
-        return;
-      }
 
-      try {
-        const response = await fetch(`${API_BASE}/users`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        });
+    // chưa login
+    if (!auth) {
+      navigate("/login");
+      return;
+    }
 
-        if (response.status === 401 || response.status === 403) {
-          localStorage.removeItem("access_token");
-          navigate("/login");
-          return;
-        }
-
-        const data = await response.json();
-        setUsers(data);
-      } catch (error) {
-        console.error("Lỗi khi tải users:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+    // không phải admin
+    if (auth.role !== "admin") {
+      navigate("/jobs");
+      return;
+    }
 
     fetchUsers();
-  }, [navigate]);
+  }, [auth, navigate]);
 
-  if (loading) return <p>Đang tải danh sách...</p>;
+    const fetchUsers = async () => {
+    try {
+      const res = await usersControllerGetAllUsers();
+
+      if (res.data && Array.isArray(res.data)) {
+        setUsers(res.data as UserDto[]);
+      } else {
+        setUsers([]);
+      }
+    } catch (err) {
+      console.error(err);
+      setError("Không thể tải danh sách người dùng");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) return <p style={{ textAlign: "center" }}>Đang tải danh sách...</p>;
+
+  if (error) return <p style={{ color: "red", textAlign: "center" }}>{error}</p>;
 
   return (
-    <div style={{ maxWidth: 800, margin: "50px auto" }}>
-      <h2>👥 Danh sách người dùng</h2>
+    <div style={{ maxWidth: 900, margin: "50px auto", fontFamily: "Arial" }}>
+      <h2 style={{ marginBottom: 20 }}>👥 Danh sách người dùng</h2>
 
       {users.length === 0 ? (
         <p>Không có tài khoản nào</p>
       ) : (
-        <table border={1} cellPadding={8} style={{ width: "100%", textAlign: "left" }}>
+        <table
+          border={1}
+          cellPadding={10}
+          style={{
+            width: "100%",
+            borderCollapse: "collapse",
+          }}
+        >
           <thead>
-            <tr>
-              <th>ID</th>
+            <tr style={{ background: "#f2f2f2" }}>
               <th>Email</th>
+              <th>Role</th>
+              <th>Active</th>
               <th>Ngày tạo</th>
+              <th>Cập nhật</th>
             </tr>
           </thead>
+
           <tbody>
             {users.map((u) => (
-              <tr key={u._id}>
-                <td>{u._id}</td>
+              <tr key={String(u._id)}>
                 <td>{u.email}</td>
-                <td>{new Date(u.createdAt || u.created_date).toLocaleString()}</td>
+                <td>{u.role}</td>
+                <td>{u.active ? "✅" : "❌"}</td>
+                <td>{new Date(u.createdAt).toLocaleString()}</td>
+                <td>{new Date(u.updatedAt).toLocaleString()}</td>
               </tr>
             ))}
           </tbody>

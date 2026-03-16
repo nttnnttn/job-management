@@ -10,8 +10,17 @@ export type CreateUserDto = {
     role: 'candidate' | 'recruiter';
 };
 
+export type ObjectId = {
+    [key: string]: unknown;
+};
+
 export type UserDto = {
     email: string;
+    role: 'candidate' | 'recruiter' | 'admin';
+    active: boolean;
+    _id: ObjectId;
+    createdAt: string;
+    updatedAt: string;
 };
 
 export type PaginatedUserDto = {
@@ -51,10 +60,6 @@ export type UpdateCandidateDto = {
 };
 
 export type CreateJobDto = {
-    [key: string]: unknown;
-};
-
-export type ObjectId = {
     [key: string]: unknown;
 };
 
@@ -235,8 +240,12 @@ export type UsersControllerGetAllUsersErrors = {
 };
 
 export type UsersControllerGetAllUsersResponses = {
-    default: unknown;
+    default: Array<{
+        [key: string]: unknown;
+    }>;
 };
+
+export type UsersControllerGetAllUsersResponse = UsersControllerGetAllUsersResponses[keyof UsersControllerGetAllUsersResponses];
 
 export type UsersControllerGetProfileData = {
     body?: never;
