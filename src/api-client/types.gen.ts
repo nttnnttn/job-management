@@ -83,11 +83,15 @@ export type UpdateJobDto = {
 };
 
 export type CreateJobCandidateDto = {
-    [key: string]: unknown;
+    job: string;
+    candidate: string;
+    status: 'applied' | 'interview' | 'hired';
 };
 
 export type UpdateJobCandidateDto = {
-    [key: string]: unknown;
+    job?: string;
+    candidate?: string;
+    status?: 'applied' | 'interview' | 'hired';
 };
 
 export type AppControllerGetHelloData = {
@@ -563,7 +567,9 @@ export type JobCandidateControllerFindAllErrors = {
 };
 
 export type JobCandidateControllerFindAllResponses = {
-    default: string;
+    default: Array<{
+        [key: string]: unknown;
+    }>;
 };
 
 export type JobCandidateControllerFindAllResponse = JobCandidateControllerFindAllResponses[keyof JobCandidateControllerFindAllResponses];
@@ -583,7 +589,9 @@ export type JobCandidateControllerCreateErrors = {
 };
 
 export type JobCandidateControllerCreateResponses = {
-    default: string;
+    default: {
+        [key: string]: unknown;
+    };
 };
 
 export type JobCandidateControllerCreateResponse = JobCandidateControllerCreateResponses[keyof JobCandidateControllerCreateResponses];
@@ -605,7 +613,9 @@ export type JobCandidateControllerRemoveErrors = {
 };
 
 export type JobCandidateControllerRemoveResponses = {
-    default: string;
+    default: {
+        [key: string]: unknown;
+    };
 };
 
 export type JobCandidateControllerRemoveResponse = JobCandidateControllerRemoveResponses[keyof JobCandidateControllerRemoveResponses];
@@ -627,7 +637,9 @@ export type JobCandidateControllerFindOneErrors = {
 };
 
 export type JobCandidateControllerFindOneResponses = {
-    default: string;
+    default: {
+        [key: string]: unknown;
+    };
 };
 
 export type JobCandidateControllerFindOneResponse = JobCandidateControllerFindOneResponses[keyof JobCandidateControllerFindOneResponses];
@@ -649,7 +661,9 @@ export type JobCandidateControllerUpdateErrors = {
 };
 
 export type JobCandidateControllerUpdateResponses = {
-    default: string;
+    default: {
+        [key: string]: unknown;
+    };
 };
 
 export type JobCandidateControllerUpdateResponse = JobCandidateControllerUpdateResponses[keyof JobCandidateControllerUpdateResponses];

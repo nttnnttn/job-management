@@ -1,8 +1,10 @@
 import React from "react";
-import { Routes, Route, Navigate, createBrowserRouter, RouterProvider } from "react-router-dom";
+import { Navigate, createBrowserRouter, RouterProvider } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+
+import { setupApiClient } from "./configs/setup-client";
 
 import LoginPage from "./component/login/page";
 import RegisterPage from "./component/register/page";
@@ -14,7 +16,9 @@ import CandidatesPage from "./pages/candidates/page";
 import JobListPage from "./pages/jobs/list/list";
 import CreateJobPage from "./pages/jobs/create/create";
 import UpdateJobPage from "./pages/jobs/update/update";
-import path from "path";
+
+// Setup API client (interceptor + baseURL)
+setupApiClient();
 
 // Tạo instance QueryClient
 const queryClient = new QueryClient();

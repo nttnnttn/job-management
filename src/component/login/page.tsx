@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { authControllerSignIn } from "../../api-client";
+import { jwtDecode } from "jwt-decode";
+import { IUserToken } from "../../hooks/useAuth";
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -10,6 +12,7 @@ export default function LoginPage() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault(); //Ngăn reload
+
     try {
     const res = await authControllerSignIn({ body: {email, password}});
 
@@ -17,9 +20,19 @@ export default function LoginPage() {
       // Xóa dấu ngoặc kép dư nếu có
       const cleanedToken = res.data.access_token;
 
+      const token = res.data.access_token;
+
       // ✅ Lưu token chính xác
       localStorage.setItem("access_token", cleanedToken);
       console.log("Access Token lưu vào localStorage:", cleanedToken);
+
+      // decode token
+        const decoded = jwtDecode<IUserToken>(token);
+
+      // nếu là candidate → lưu candidate_id
+      if (decoded.role === "candidate") {
+        localStorage.setItem("candidate_id", decoded.sub);
+      }
 
       setMessage("✅ Đăng nhập thành công!");
       setTimeout(() => navigate("/home"), 1500); //Chuyển hướng

@@ -3,6 +3,7 @@ import { useJobList } from "../../../hooks/jobs/useJobList";
 import { useDeleteJob } from "../../../hooks/jobs/useDeleteJob";
 import { useNavigate } from "react-router-dom";
 import { jwtDecode, JwtPayload } from "jwt-decode";
+import { useApplyJob } from "../../../hooks/jobs/useApplyJob";
 
 import styles from "./list.module.css";
 
@@ -14,6 +15,7 @@ export default function JobListPage() {
   const [search, setSearch] = useState("");
   const { data, isLoading } = useJobList({ search });
   const deleteJob = useDeleteJob();
+  const applyJob = useApplyJob();
   const navigate = useNavigate();
 
   let role: string | undefined = undefined;
@@ -31,11 +33,33 @@ export default function JobListPage() {
 
   const canCreate = role === "recruiter";
   const canEditDelete = role === "recruiter";
+  const canApply = role === "candidate";
+
+  const candidateId = localStorage.getItem("candidate_id");
 
   const handleDelete = (id: string) => {
     if (window.confirm("Are you sure to delete this job?")) {
       deleteJob.mutate(id);
     }
+  };
+
+  const handleApply = (jobId: string) => {
+    if (!candidateId) {
+      alert("You must login as candidate");
+      return;
+    }
+
+    applyJob.mutate(
+      { jobId, candidateId },
+      {
+        onSuccess: () => {
+          alert("Apply success!");
+        },
+        onError: () => {
+          alert("You already applied this job");
+        },
+      }
+    );
   };
 
   return (
@@ -78,7 +102,9 @@ export default function JobListPage() {
               <th className={styles.th}>Created At</th>
               <th className={styles.th}>Updated At</th>
 
-              {canEditDelete && <th className={styles.th}>Actions</th>}
+              {(canEditDelete || canApply) && (
+                <th className={styles.th}>Actions</th>
+              )}
             </tr>
           </thead>
 
@@ -116,29 +142,46 @@ export default function JobListPage() {
                   {new Date(job.updatedAt).toLocaleString()}
                 </td>
 
-                {canEditDelete && (
+                {(canEditDelete || canApply) && (
                   <td className={styles.td}>
                     <div className={styles.actions}>
-                      <button
-                        className={styles.editBtn}
-                        onClick={() => navigate(`/jobs/update/${job._id}`)}
-                      >
-                        ✏️ Edit
-                      </button>
+                      {canEditDelete && (
+                        <>
+                          <button
+                            className={styles.editBtn}
+                            onClick={() =>
+                              navigate(`/jobs/update/${job._id}`)
+                            }
+                          >
+                            ✏️ Edit
+                          </button>
 
-                      <button
-                        className={styles.deleteBtn}
-                        onClick={() => handleDelete(job._id)}
-                      >
-                        🗑 Delete
-                      </button>
+                          <button
+                            className={styles.deleteBtn}
+                            onClick={() => handleDelete(job._id)}
+                          >
+                            🗑 Delete
+                          </button>
 
-                      <button
-                        className={styles.viewBtn}
-                        onClick={() => navigate(`/candidates/${job._id}`)}
-                      >
-                        👥 Candidates
-                      </button>
+                          <button
+                            className={styles.viewBtn}
+                            onClick={() =>
+                              navigate(`/candidates/${job._id}`)
+                            }
+                          >
+                            👥 Candidates
+                          </button>
+                        </>
+                      )}
+
+                      {canApply && (
+                        <button
+                          className={styles.applyBtn}
+                          onClick={() => handleApply(job._id)}
+                        >
+                          📩 Apply
+                        </button>
+                      )}
                     </div>
                   </td>
                 )}
