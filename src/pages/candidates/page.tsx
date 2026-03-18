@@ -62,7 +62,7 @@ export default function CandidatesPage() {
           <tbody>
             {data.map((item: any) => (
               <tr key={item._id}>
-                <td>{item.email}</td>
+                <td>{item.user?.email}</td>
                 <td>{new Date(item.createdAt).toLocaleString()}</td>
               </tr>
             ))}
