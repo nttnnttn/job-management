@@ -1,7 +1,7 @@
 import { jwtDecode } from "jwt-decode";
 
 export interface IUserToken {
-  sub: string;
+  userId: string;
   email: string;
   role: string;
 }

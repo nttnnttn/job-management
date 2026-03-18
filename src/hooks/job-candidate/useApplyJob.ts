@@ -5,10 +5,10 @@ export const useApplyJob = () => {
   return useMutation({
     mutationFn: ({
       jobId,
-      candidateId,
+      userId,
     }: {
       jobId: string;
-      candidateId: string;
-    }) => applyJob({ jobId, candidateId }),
+      userId: string;
+    }) => applyJob({ jobId, userId }),
   });
 };

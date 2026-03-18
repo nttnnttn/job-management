@@ -3,7 +3,7 @@ import { useJobList } from "../../../hooks/jobs/useJobList";
 import { useDeleteJob } from "../../../hooks/jobs/useDeleteJob";
 import { useNavigate } from "react-router-dom";
 import { jwtDecode, JwtPayload } from "jwt-decode";
-import { useApplyJob } from "../../../hooks/jobs/useApplyJob";
+import { useApplyJob } from "../../../hooks/job-candidate/useApplyJob";
 
 import styles from "./list.module.css";
 
@@ -13,6 +13,8 @@ interface MyTokenPayload extends JwtPayload {
 
 export default function JobListPage() {
   const [search, setSearch] = useState("");
+  const [message, setMessage] = useState("");
+  const [appliedJobs, setAppliedJobs] = useState<string[]>([]);
   const { data, isLoading } = useJobList({ search });
   const deleteJob = useDeleteJob();
   const applyJob = useApplyJob();
@@ -35,7 +37,7 @@ export default function JobListPage() {
   const canEditDelete = role === "recruiter";
   const canApply = role === "candidate";
 
-  const candidateId = localStorage.getItem("candidate_id");
+  const userId = localStorage.getItem("user_id");
 
   const handleDelete = (id: string) => {
     if (window.confirm("Are you sure to delete this job?")) {
@@ -44,19 +46,28 @@ export default function JobListPage() {
   };
 
   const handleApply = (jobId: string) => {
-    if (!candidateId) {
-      alert("You must login as candidate");
+    if (!userId) {
+      setMessage("❌ You must login as candidate");
       return;
     }
 
+    const confirmApply = window.confirm(
+    "Do you want to apply for this job?"
+    );
+
+    if (!confirmApply) return;
+
     applyJob.mutate(
-      { jobId, candidateId },
+      { jobId, userId },
       {
         onSuccess: () => {
-          alert("Apply success!");
+          setMessage("✅ Apply success!");
+          setAppliedJobs((prev) => [...prev, jobId]);
         },
-        onError: () => {
-          alert("You already applied this job");
+        onError: (err: any) => {
+          const msg = err?.response?.data?.message ||"You already applied this job";
+
+          setMessage(`❌ ${msg}`);
         },
       }
     );
@@ -77,6 +88,18 @@ export default function JobListPage() {
           </button>
         )}
       </div>
+
+      {/* Message UI */}
+      {message && (
+        <p
+          style={{
+            marginBottom: 10,
+            color: message.includes("success") ? "green" : "red",
+          }}
+        >
+          {message}
+        </p>
+      )}
 
       {/* Search */}
       <input
@@ -177,9 +200,12 @@ export default function JobListPage() {
                       {canApply && (
                         <button
                           className={styles.applyBtn}
+                          disabled={appliedJobs.includes(job._id)}
                           onClick={() => handleApply(job._id)}
                         >
-                          📩 Apply
+                          {appliedJobs.includes(job._id)
+                            ? "✅ Applied"
+                            : "📩 Apply"}
                         </button>
                       )}
                     </div>

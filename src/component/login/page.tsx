@@ -31,7 +31,7 @@ export default function LoginPage() {
 
       // nếu là candidate → lưu candidate_id
       if (decoded.role === "candidate") {
-        localStorage.setItem("candidate_id", decoded.sub);
+        localStorage.setItem("user_id", decoded.userId);
       }
 
       setMessage("✅ Đăng nhập thành công!");
