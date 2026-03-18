@@ -3,6 +3,7 @@ import { useJobList } from "../../../hooks/jobs/useJobList";
 import { useDeleteJob } from "../../../hooks/jobs/useDeleteJob";
 import { useNavigate } from "react-router-dom";
 import { jwtDecode, JwtPayload } from "jwt-decode";
+import { useApplyJob } from "../../../hooks/job-candidate/useApplyJob";
 
 import styles from "./list.module.css";
 
@@ -12,8 +13,11 @@ interface MyTokenPayload extends JwtPayload {
 
 export default function JobListPage() {
   const [search, setSearch] = useState("");
+  const [message, setMessage] = useState("");
+  const [appliedJobs, setAppliedJobs] = useState<string[]>([]);
   const { data, isLoading } = useJobList({ search });
   const deleteJob = useDeleteJob();
+  const applyJob = useApplyJob();
   const navigate = useNavigate();
 
   let role: string | undefined = undefined;
@@ -31,11 +35,42 @@ export default function JobListPage() {
 
   const canCreate = role === "recruiter";
   const canEditDelete = role === "recruiter";
+  const canApply = role === "candidate";
+
+  const userId = localStorage.getItem("user_id");
 
   const handleDelete = (id: string) => {
     if (window.confirm("Are you sure to delete this job?")) {
       deleteJob.mutate(id);
     }
+  };
+
+  const handleApply = (jobId: string) => {
+    if (!userId) {
+      setMessage("❌ You must login as candidate");
+      return;
+    }
+
+    const confirmApply = window.confirm(
+    "Do you want to apply for this job?"
+    );
+
+    if (!confirmApply) return;
+
+    applyJob.mutate(
+      { jobId, userId },
+      {
+        onSuccess: () => {
+          setMessage("✅ Apply success!");
+          setAppliedJobs((prev) => [...prev, jobId]);
+        },
+        onError: (err: any) => {
+          const msg = err?.response?.data?.message ||"You already applied this job";
+
+          setMessage(`❌ ${msg}`);
+        },
+      }
+    );
   };
 
   return (
@@ -53,6 +88,18 @@ export default function JobListPage() {
           </button>
         )}
       </div>
+
+      {/* Message UI */}
+      {message && (
+        <p
+          style={{
+            marginBottom: 10,
+            color: message.includes("success") ? "green" : "red",
+          }}
+        >
+          {message}
+        </p>
+      )}
 
       {/* Search */}
       <input
@@ -78,7 +125,9 @@ export default function JobListPage() {
               <th className={styles.th}>Created At</th>
               <th className={styles.th}>Updated At</th>
 
-              {canEditDelete && <th className={styles.th}>Actions</th>}
+              {(canEditDelete || canApply) && (
+                <th className={styles.th}>Actions</th>
+              )}
             </tr>
           </thead>
 
@@ -116,29 +165,49 @@ export default function JobListPage() {
                   {new Date(job.updatedAt).toLocaleString()}
                 </td>
 
-                {canEditDelete && (
+                {(canEditDelete || canApply) && (
                   <td className={styles.td}>
                     <div className={styles.actions}>
-                      <button
-                        className={styles.editBtn}
-                        onClick={() => navigate(`/jobs/update/${job._id}`)}
-                      >
-                        ✏️ Edit
-                      </button>
+                      {canEditDelete && (
+                        <>
+                          <button
+                            className={styles.editBtn}
+                            onClick={() =>
+                              navigate(`/jobs/update/${job._id}`)
+                            }
+                          >
+                            ✏️ Edit
+                          </button>
 
-                      <button
-                        className={styles.deleteBtn}
-                        onClick={() => handleDelete(job._id)}
-                      >
-                        🗑 Delete
-                      </button>
+                          <button
+                            className={styles.deleteBtn}
+                            onClick={() => handleDelete(job._id)}
+                          >
+                            🗑 Delete
+                          </button>
 
-                      <button
-                        className={styles.viewBtn}
-                        onClick={() => navigate(`/candidates/${job._id}`)}
-                      >
-                        👥 Candidates
-                      </button>
+                          <button
+                            className={styles.viewBtn}
+                            onClick={() =>
+                              navigate(`/candidates/${job._id}`)
+                            }
+                          >
+                            👥 Candidates
+                          </button>
+                        </>
+                      )}
+
+                      {canApply && (
+                        <button
+                          className={styles.applyBtn}
+                          disabled={appliedJobs.includes(job._id)}
+                          onClick={() => handleApply(job._id)}
+                        >
+                          {appliedJobs.includes(job._id)
+                            ? "✅ Applied"
+                            : "📩 Apply"}
+                        </button>
+                      )}
                     </div>
                   </td>
                 )}

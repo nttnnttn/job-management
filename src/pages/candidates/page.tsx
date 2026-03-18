@@ -1,44 +1,38 @@
-import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { candidatesControllerFindAll } from "../../api-client";
-
-interface Candidate {
-  _id: string;
-  email: string;
-  createdAt: string;
-}
+import { useAuth } from "../../hooks/useAuth";
+import { useCandidatesByJob } from "../../hooks/job-candidate/useCandidatesByJob";
 
 export default function CandidatesPage() {
   const { jobId } = useParams();
   const navigate = useNavigate();
 
-  const [candidates, setCandidates] = useState<Candidate[]>([]);
-  const [loading, setLoading] = useState(true);
+  const auth = useAuth();
 
-  const API_BASE = import.meta.env.VITE_API_BASE;
-  const token = localStorage.getItem("access_token");
+   // chỉ recruiter được xem
+  if (auth?.role !== "recruiter") {
+    return (
+      <p style={{ textAlign: "center", marginTop: 80 }}>
+        Access denied
+      </p>
+    );
+  }
 
-  useEffect(() => {
-    const fetchCandidates = async () => {
-      try {
-        const res = await candidatesControllerFindAll();
-        if (res.data && Array.isArray(res.data)) {
-          setCandidates(res.data as Candidate[]);
-        } else {
-          setCandidates([]);
-        }
-      } catch (error) {
-        console.error("Error fetching candidates:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const { data, isLoading, error } = useCandidatesByJob(jobId!);
 
-    fetchCandidates();
-  }, []);
+  if (isLoading) {
+    return (
+      <p style={{ textAlign: "center", marginTop: 80 }}>
+        Loading candidates...
+      </p>
+    );
+  }
 
-  if (loading) {
-    return <p style={{ textAlign: "center", marginTop: 80 }}>Loading candidates...</p>;
+  if (error) {
+    return (
+      <p style={{ textAlign: "center", marginTop: 80 }}>
+        Error loading candidates
+      </p>
+    );
   }
 
   return (
@@ -54,7 +48,7 @@ export default function CandidatesPage() {
 
       <h2>🧑‍💼 Candidates</h2>
 
-      {candidates.length === 0 ? (
+      {!data || data.length === 0 ? (
         <p>No candidates found</p>
       ) : (
         <table border={1} cellPadding={10} width="100%">
@@ -66,10 +60,10 @@ export default function CandidatesPage() {
           </thead>
 
           <tbody>
-            {candidates.map((c) => (
-              <tr key={c._id}>
-                <td>{c.email}</td>
-                <td>{new Date(c.createdAt).toLocaleString()}</td>
+            {data.map((item: any) => (
+              <tr key={item._id}>
+                <td>{item.user?.email}</td>
+                <td>{new Date(item.createdAt).toLocaleString()}</td>
               </tr>
             ))}
           </tbody>
