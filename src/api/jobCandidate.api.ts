@@ -1,15 +1,15 @@
 import { 
   jobCandidateControllerApplyJobs,jobCandidateControllerGetCandidatesByJob,
+  jobCandidateControllerGetMyApplications,
 } from "../api-client";
 
 /**
  * POST /job-candidate
  */
-export const applyJob = async ({jobId,userId,}: {jobId: string;userId: string;}) => {
+export const applyJob = async ({jobId,}: {jobId: string}) => {
   const res = await jobCandidateControllerApplyJobs({
     body: {
       job: jobId,
-      user: userId,
       status: "applied",
     },
   });
@@ -25,5 +25,10 @@ export const getCandidatesByJob = async (jobId: string) => {
     path: { jobId },
   });
 
+  return res.data;
+};
+
+export const getMyApplications = async () => {
+  const res = await jobCandidateControllerGetMyApplications();
   return res.data;
 };

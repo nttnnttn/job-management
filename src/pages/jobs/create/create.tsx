@@ -43,7 +43,10 @@ export default function CreateJobPage() {
   }, [navigate]);
 
   const handleSubmit = () => {
-    if (!title.trim()) return;
+    if (!title.trim() || !company.trim() ) {
+      alert("Title và Company là bắt buộc");
+      return;
+    }
 
     createJob.mutate(
       {

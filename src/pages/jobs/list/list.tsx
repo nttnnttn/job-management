@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useJobList } from "../../../hooks/jobs/useJobList";
 import { useDeleteJob } from "../../../hooks/jobs/useDeleteJob";
 import { useNavigate } from "react-router-dom";
@@ -6,6 +6,7 @@ import { jwtDecode, JwtPayload } from "jwt-decode";
 import { useApplyJob } from "../../../hooks/job-candidate/useApplyJob";
 
 import styles from "./list.module.css";
+import { useMyApplications } from "../../../hooks/job-candidate/useMyApplications";
 
 interface MyTokenPayload extends JwtPayload {
   role?: string;
@@ -19,6 +20,7 @@ export default function JobListPage() {
   const deleteJob = useDeleteJob();
   const applyJob = useApplyJob();
   const navigate = useNavigate();
+  const { data: myApplications } = useMyApplications();
 
   let role: string | undefined = undefined;
 
@@ -39,15 +41,31 @@ export default function JobListPage() {
 
   const userId = localStorage.getItem("user_id");
 
-  const handleDelete = (id: string) => {
-    if (window.confirm("Are you sure to delete this job?")) {
-      deleteJob.mutate(id);
+  //LOAD JOB ĐÃ APPLY KHI RELOAD
+  useEffect(() => {
+    if (!myApplications || !Array.isArray(myApplications)) return; 
+      const jobIds: string[] = myApplications.map(
+        (item: any) => item.job?._id
+      )
+      setAppliedJobs(jobIds);
+  }, [myApplications]);
+
+  const handleDelete = (jobId: string) => {
+    if (!userId) {
+      setMessage("❌ You must login as candidate");
+      return;
     }
   };
 
   const handleApply = (jobId: string) => {
     if (!userId) {
       setMessage("❌ You must login as candidate");
+      return;
+    }
+
+    // CHẶN APPLY TRÙNG FRONTEND
+    if (appliedJobs.includes(jobId)) {
+      setMessage("❌ You already applied this job");
       return;
     }
 
@@ -58,7 +76,7 @@ export default function JobListPage() {
     if (!confirmApply) return;
 
     applyJob.mutate(
-      { jobId, userId },
+      { jobId},
       {
         onSuccess: () => {
           setMessage("✅ Apply success!");
