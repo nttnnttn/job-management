@@ -4,6 +4,9 @@ import { getProfile } from "../../api/users.api";
 export const useProfile = () => {
   return useQuery({
     queryKey: ["profile"],
-    queryFn: getProfile,
+    queryFn: async () => {
+      const res = await getProfile();
+      return res;
+    },
   });
 };

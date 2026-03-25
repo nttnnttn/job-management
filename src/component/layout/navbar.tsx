@@ -1,15 +1,32 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
+import { useEffect, useRef, useState } from "react";
 
 export default function Navbar() {
   const navigate = useNavigate();
   const user = useAuth();
-  const role = user?.role;
+
+  const [open, setOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const role = user?.role?.toLowerCase?.() || "";
 
   const handleLogout = () => {
     localStorage.removeItem("access_token");
     navigate("/login");
   };
+
+  // click ngoài → đóng menu
+  useEffect(() => {
+    const handleClickOutside = (e: any) => {
+      if (!dropdownRef.current?.contains(e.target)) {
+        setOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   return (
     <nav style={styles.navbar}>

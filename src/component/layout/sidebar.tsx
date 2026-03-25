@@ -1,13 +1,38 @@
 import { Link, useLocation } from "react-router-dom";
+import { useAuth } from "../../hooks/useAuth";
 
 export default function Sidebar() {
   const location = useLocation();
+  const user = useAuth();
 
-  const menu = [
+  const role = (user?.role || "").toLowerCase();
+
+  let menu = [
     { label: "Thông tin cá nhân", path: "/profile" },
-    { label: "Quản lý CV", path: "/profile/cv" },
-    { label: "Lịch sử ứng tuyển", path: "/profile/applications" },
   ];
+
+  // Candidate
+  if (role === "candidate") {
+    menu.push(
+      { label: "Quản lý CV", path: "/profile/cv" },
+      { label: "Lịch sử ứng tuyển", path: "/profile/applications" }
+    );
+  }
+
+  //  Recruiter
+  if (role === "recruiter") {
+    menu.push(
+      { label: "Ứng viên đã apply", path: "/profile/applications" }
+    );
+  }
+
+  //  Admin
+  if (role === "admin") {
+    menu.push(
+      { label: "Quản lý người dùng", path: "/users" },
+      { label: "Quản lý job", path: "/jobs" }
+    );
+  }
 
   return (
     <div className="w-[250px] h-screen border-r bg-white fixed left-0 top-0 p-5">
@@ -15,7 +40,7 @@ export default function Sidebar() {
 
       <div className="flex flex-col gap-2">
         {menu.map((item) => {
-          const active = location.pathname === item.path;
+          const active = location.pathname.startsWith(item.path);
 
           return (
             <Link
@@ -36,3 +61,7 @@ export default function Sidebar() {
     </div>
   );
 }
+function userAuth() {
+  throw new Error("Function not implemented.");
+}
+

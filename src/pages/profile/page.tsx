@@ -2,50 +2,41 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 
-import { getProfile, updateProfile, UpdateProfilePayload } from "../../api/users.api";
-import { profile } from "console";
-
+import { updateProfile, UpdateProfilePayload } from "../../api/users.api";
+import { useProfile } from "../../hooks/users/useProfile";
 export default function ProfilePage() {
   const navigate = useNavigate();
   const auth = useAuth();
+
+  const { data, isLoading, refetch } = useProfile();
 
   const [form, setForm] = useState<UpdateProfilePayload>({
     fullName: "",
     phone: "",
   });
 
-  const [loading, setLoading] = useState(true);
+  const [loading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
 
   // 🔥 check login
   useEffect(() => {
+    if (auth === null) return;
+
     if (!auth) {
       navigate("/login", { replace: true });
     }
-  }, [auth]);
+  }, [auth, navigate]);
 
   // 🔥 load profile
   useEffect(() => {
-    if (!auth) return;
-
-    const fetchProfile = async () => {
-      try {
-        const data = await getProfile();
-
-        setForm({
-          fullName: profile.fullName || "",
-          phone: profile.phone || "",
-        });
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchProfile();
-  }, [auth]);
+    if (data) {
+      setForm({
+        fullName: typeof data.fullName === "string" ? data.fullName : "",
+        phone: typeof data.phone === "string" ? data.phone : "",
+      });
+    }
+  }, [data]);
 
   // 🔥 handle change
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -66,6 +57,7 @@ export default function ProfilePage() {
       await updateProfile(form);
 
       setMessage("✅ Cập nhật thành công");
+      refetch(); // reload data
     } catch (err) {
       console.error(err);
       setMessage("❌ Cập nhật thất bại");

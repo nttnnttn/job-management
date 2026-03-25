@@ -11,6 +11,8 @@ export default function HomeLayout() {
 
   // 🔥 check login
   useEffect(() => {
+    if (user === null) return;
+
     if (!user) {
       navigate("/login", { replace: true });
     }
@@ -19,11 +21,15 @@ export default function HomeLayout() {
   // 🔥 chỉ show sidebar khi vào profile
   const showSidebar = location.pathname.startsWith("/profile");
 
+  // chưa load xong user → không render
+  if (user === null) return null;
+
+  // chưa login → không render 
   if (!user) return null;
 
   return (
     <div>
-      {/* ✅ Navbar luôn ở trên */}
+      {/* Navbar luôn ở trên */}
       <Navbar />
 
       <div style={{ display: "flex" }}>
