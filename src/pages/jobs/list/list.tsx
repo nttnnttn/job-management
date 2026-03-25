@@ -41,13 +41,11 @@ export default function JobListPage() {
 
   const userId = localStorage.getItem("user_id");
 
-  //LOAD JOB ĐÃ APPLY KHI RELOAD
+  //LOAD JOB ĐÃ APPLY 
   useEffect(() => {
+    console.log(myApplications)
     if (!myApplications || !Array.isArray(myApplications)) return; 
-      const jobIds: string[] = myApplications.map(
-        (item: any) => item.job?._id
-      )
-      setAppliedJobs(jobIds);
+      setAppliedJobs(myApplications);
   }, [myApplications]);
 
   const handleDelete = (jobId: string) => {
@@ -55,6 +53,19 @@ export default function JobListPage() {
       setMessage("❌ You must login as candidate");
       return;
     }
+
+    const confirmDelete = window.confirm("Are you sure to delete?");
+
+    if (!confirmDelete) return;
+
+    deleteJob.mutate(jobId, {
+      onSuccess: () => {
+        setMessage("✅ Delete success!");
+      },
+      onError: () => {
+        setMessage("❌ Delete failed");
+      },
+    });
   };
 
   const handleApply = (jobId: string) => {
@@ -83,7 +94,7 @@ export default function JobListPage() {
           setAppliedJobs((prev) => [...prev, jobId]);
         },
         onError: (err: any) => {
-          const msg = err?.response?.data?.message ||"You already applied this job";
+          const msg = err?.message ||"You already applied this job";
 
           setMessage(`❌ ${msg}`);
         },
@@ -158,79 +169,82 @@ export default function JobListPage() {
               </tr>
             )}
 
-            {data?.map((job: any) => (
-              <tr key={job._id} className={styles.row}>
-                <td className={styles.td}>{job.title}</td>
-                <td className={styles.td}>{job.company}</td>
-                <td className={styles.td}>{job.location}</td>
-                <td className={styles.td}>{job.status}</td>
+            {data?.map((job) => {
+              const isApplied = job.isApplied || appliedJobs.includes(job._id); 
+              return (
+                <tr key={job._id} className={styles.row}>
+                  <td className={styles.td}>{job.title}</td>
+                  <td className={styles.td}>{job.company}</td>
+                  <td className={styles.td}>{job.location}</td>
+                  <td className={styles.td}>{job.status}</td>
 
-                <td className={styles.td}>
-                  {job.salaryMin ? `$${job.salaryMin}` : "N/A"}
-                </td>
-
-                <td className={styles.td}>
-                  {job.salaryMax ? `$${job.salaryMax}` : "N/A"}
-                </td>
-
-                <td className={styles.td}>{job.description}</td>
-
-                <td className={styles.td}>
-                  {new Date(job.createdAt).toLocaleString()}
-                </td>
-
-                <td className={styles.td}>
-                  {new Date(job.updatedAt).toLocaleString()}
-                </td>
-
-                {(canEditDelete || canApply) && (
                   <td className={styles.td}>
-                    <div className={styles.actions}>
-                      {canEditDelete && (
-                        <>
-                          <button
-                            className={styles.editBtn}
-                            onClick={() =>
-                              navigate(`/jobs/update/${job._id}`)
-                            }
-                          >
-                            ✏️ Edit
-                          </button>
-
-                          <button
-                            className={styles.deleteBtn}
-                            onClick={() => handleDelete(job._id)}
-                          >
-                            🗑 Delete
-                          </button>
-
-                          <button
-                            className={styles.viewBtn}
-                            onClick={() =>
-                              navigate(`/candidates/${job._id}`)
-                            }
-                          >
-                            👥 Candidates
-                          </button>
-                        </>
-                      )}
-
-                      {canApply && (
-                        <button
-                          className={styles.applyBtn}
-                          disabled={appliedJobs.includes(job._id)}
-                          onClick={() => handleApply(job._id)}
-                        >
-                          {appliedJobs.includes(job._id)
-                            ? "✅ Applied"
-                            : "📩 Apply"}
-                        </button>
-                      )}
-                    </div>
+                    {job.salaryMin ? `$${job.salaryMin}` : "N/A"}
                   </td>
-                )}
-              </tr>
-            ))}
+
+                  <td className={styles.td}>
+                    {job.salaryMax ? `$${job.salaryMax}` : "N/A"}
+                  </td>
+
+                  <td className={styles.td}>{job.description}</td>
+
+                  <td className={styles.td}>
+                    {new Date(job.createdAt).toLocaleString()}
+                  </td>
+
+                  <td className={styles.td}>
+                    {new Date(job.updatedAt).toLocaleString()}
+                  </td>
+
+                  {(canEditDelete || canApply) && (
+                    <td className={styles.td}>
+                      <div className={styles.actions}>
+                        {canEditDelete && (
+                          <>
+                            <button
+                              className={styles.editBtn}
+                              onClick={() =>
+                                navigate(`/jobs/update/${job._id}`)
+                              }
+                            >
+                              ✏️ Edit
+                            </button>
+
+                            <button
+                              className={styles.deleteBtn}
+                              onClick={() => handleDelete(job._id)}
+                            >
+                              🗑 Delete
+                            </button>
+
+                            <button
+                              className={styles.viewBtn}
+                              onClick={() =>
+                                navigate(`/candidates/${job._id}`)
+                              }
+                            >
+                              👥 Candidates
+                            </button>
+                          </>
+                        )}
+
+                        {canApply && (
+                          <button
+                            className={styles.applyBtn}
+                            disabled={isApplied}
+                            onClick={() => handleApply(job._id)}
+                          >
+                            {isApplied 
+                              ? "✅ Applied"
+                              : "📩 Apply"}
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  )}
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>

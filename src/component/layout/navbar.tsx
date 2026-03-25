@@ -1,6 +1,4 @@
-import React from "react";
 import { NavLink, useNavigate } from "react-router-dom";
-import { jwtDecode } from "jwt-decode";
 import { useAuth } from "../../hooks/useAuth";
 
 export default function Navbar() {
@@ -37,9 +35,11 @@ export default function Navbar() {
 
         {/* Candidate */}
         {role === "candidate" && (
-          <NavLink to="/jobs" style={styles.link}>
-            Jobs
-          </NavLink>
+          <>
+            <NavLink to="/jobs" style={styles.link}>
+              Jobs
+            </NavLink>
+          </>
         )}
 
         {/* Recruiter */}
@@ -54,6 +54,11 @@ export default function Navbar() {
             </NavLink>
           </>
         )}
+
+        {/* Profile */}
+        <NavLink to="/profile" style={styles.link}>
+          👤 Profile
+        </NavLink>
 
         <button onClick={handleLogout} style={styles.logoutBtn}>
           Đăng xuất

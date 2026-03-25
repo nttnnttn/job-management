@@ -31,6 +31,8 @@ export type PaginatedUserDto = {
 };
 
 export type UpdateUserDto = {
+    fullName?: string;
+    phone?: string;
     password?: string;
     email?: string;
     role?: 'candidate' | 'recruiter';
@@ -64,18 +66,18 @@ export type CreateJobDto = {
 };
 
 export type JobsDto = {
-    createdBy: {
-        [key: string]: unknown;
-    };
+    _id: string;
     title: string;
     company: string;
     location: string;
+    status: 'open' | 'close';
     salaryMin?: number;
     salaryMax?: number;
     description?: string;
-    _id: ObjectId;
     createdAt: string;
     updatedAt: string;
+    isApplied?: boolean;
+    createdBy?: string;
 };
 
 export type UpdateJobDto = {
@@ -269,6 +271,28 @@ export type UsersControllerGetProfileResponses = {
 
 export type UsersControllerGetProfileResponse = UsersControllerGetProfileResponses[keyof UsersControllerGetProfileResponses];
 
+export type UsersControllerUpdateProfileData = {
+    body: UpdateUserDto;
+    path?: never;
+    query?: never;
+    url: '/users/me';
+};
+
+export type UsersControllerUpdateProfileErrors = {
+    /**
+     * Internal server error
+     */
+    500: unknown;
+};
+
+export type UsersControllerUpdateProfileResponses = {
+    default: {
+        [key: string]: unknown;
+    };
+};
+
+export type UsersControllerUpdateProfileResponse = UsersControllerUpdateProfileResponses[keyof UsersControllerUpdateProfileResponses];
+
 export type AuthControllerSignInData = {
     body: LoginDto;
     path?: never;
@@ -451,9 +475,7 @@ export type JobsControllerFindAllErrors = {
 };
 
 export type JobsControllerFindAllResponses = {
-    default: Array<{
-        [key: string]: unknown;
-    }>;
+    default: Array<JobsDto>;
 };
 
 export type JobsControllerFindAllResponse = JobsControllerFindAllResponses[keyof JobsControllerFindAllResponses];
@@ -607,9 +629,7 @@ export type JobCandidateControllerGetMyApplicationsErrors = {
 };
 
 export type JobCandidateControllerGetMyApplicationsResponses = {
-    default: Array<{
-        [key: string]: unknown;
-    }>;
+    default: Array<string>;
 };
 
 export type JobCandidateControllerGetMyApplicationsResponse = JobCandidateControllerGetMyApplicationsResponses[keyof JobCandidateControllerGetMyApplicationsResponses];

@@ -1,10 +1,11 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { createJob, deleteJob, getJobById, getJobs, updateJob } from "../api/jobs.api";
 import { CreateJobDto, UpdateJobDto } from "../api-client";
+import { Job } from "../types/job";
 
 // GET list
 export const paginationJobs = (page: number, limit: number) => {
-  return useQuery({
+  return useQuery<Job[]>({
     queryKey: ["jobs", page],
     queryFn: async () => {
       const data = await getJobs();
@@ -15,12 +16,10 @@ export const paginationJobs = (page: number, limit: number) => {
 
 // GET one job
 export const useJob = (id: string) => {
-  return useQuery({
+  return useQuery<Job>({
     queryKey: ["job", id],
-    queryFn: async () => {
-      const data = await getJobById(id);
-      return data;
-    },
+    queryFn: () => getJobById(id),
+    enabled: !!id,
   });
 };
 
