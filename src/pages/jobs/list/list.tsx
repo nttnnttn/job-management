@@ -102,34 +102,6 @@ export default function JobListPage() {
     );
   };
 
-  const handleApply = (jobId: string) => {
-    if (!userId) {
-      setMessage("❌ You must login as candidate");
-      return;
-    }
-
-    const confirmApply = window.confirm(
-    "Do you want to apply for this job?"
-    );
-
-    if (!confirmApply) return;
-
-    applyJob.mutate(
-      { jobId, userId },
-      {
-        onSuccess: () => {
-          setMessage("✅ Apply success!");
-          setAppliedJobs((prev) => [...prev, jobId]);
-        },
-        onError: (err: any) => {
-          const msg = err?.response?.data?.message ||"You already applied this job";
-
-          setMessage(`❌ ${msg}`);
-        },
-      }
-    );
-  };
-
   return (
     <div className={styles.container}>
       {/* Header */}
