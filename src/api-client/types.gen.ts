@@ -357,10 +357,8 @@ export type CandidatesControllerFindAllErrors = {
 };
 
 export type CandidatesControllerFindAllResponses = {
-    default: string;
+    default: unknown;
 };
-
-export type CandidatesControllerFindAllResponse = CandidatesControllerFindAllResponses[keyof CandidatesControllerFindAllResponses];
 
 export type CandidatesControllerCreateData = {
     body: CreateCandidateDto;
