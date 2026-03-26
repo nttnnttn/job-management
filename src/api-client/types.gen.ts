@@ -31,6 +31,8 @@ export type PaginatedUserDto = {
 };
 
 export type UpdateUserDto = {
+    fullName?: string;
+    phone?: string;
     password?: string;
     email?: string;
     role?: 'candidate' | 'recruiter';
@@ -64,18 +66,18 @@ export type CreateJobDto = {
 };
 
 export type JobsDto = {
-    fullName: string;
-    skills: Array<string>;
-    status: 'open' | 'close';
+    _id: string;
     title: string;
     company: string;
     location: string;
+    status: 'open' | 'close';
     salaryMin?: number;
     salaryMax?: number;
     description?: string;
-    _id: ObjectId;
     createdAt: string;
     updatedAt: string;
+    isApplied?: boolean;
+    createdBy?: string;
 };
 
 export type UpdateJobDto = {
@@ -84,13 +86,11 @@ export type UpdateJobDto = {
 
 export type CreateJobCandidateDto = {
     job: string;
-    user: string;
     status: 'applied' | 'interview' | 'hired';
 };
 
 export type UpdateJobCandidateDto = {
     job?: string;
-    user?: string;
     status?: 'applied' | 'interview' | 'hired';
 };
 
@@ -270,6 +270,28 @@ export type UsersControllerGetProfileResponses = {
 };
 
 export type UsersControllerGetProfileResponse = UsersControllerGetProfileResponses[keyof UsersControllerGetProfileResponses];
+
+export type UsersControllerUpdateProfileData = {
+    body: UpdateUserDto;
+    path?: never;
+    query?: never;
+    url: '/users/me';
+};
+
+export type UsersControllerUpdateProfileErrors = {
+    /**
+     * Internal server error
+     */
+    500: unknown;
+};
+
+export type UsersControllerUpdateProfileResponses = {
+    default: {
+        [key: string]: unknown;
+    };
+};
+
+export type UsersControllerUpdateProfileResponse = UsersControllerUpdateProfileResponses[keyof UsersControllerUpdateProfileResponses];
 
 export type AuthControllerSignInData = {
     body: LoginDto;
@@ -453,9 +475,7 @@ export type JobsControllerFindAllErrors = {
 };
 
 export type JobsControllerFindAllResponses = {
-    default: Array<{
-        [key: string]: unknown;
-    }>;
+    default: Array<JobsDto>;
 };
 
 export type JobsControllerFindAllResponse = JobsControllerFindAllResponses[keyof JobsControllerFindAllResponses];
@@ -594,6 +614,26 @@ export type JobCandidateControllerApplyJobsResponses = {
 
 export type JobCandidateControllerApplyJobsResponse = JobCandidateControllerApplyJobsResponses[keyof JobCandidateControllerApplyJobsResponses];
 
+export type JobCandidateControllerGetMyApplicationsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/job-candidate/me';
+};
+
+export type JobCandidateControllerGetMyApplicationsErrors = {
+    /**
+     * Internal server error
+     */
+    500: unknown;
+};
+
+export type JobCandidateControllerGetMyApplicationsResponses = {
+    default: Array<string>;
+};
+
+export type JobCandidateControllerGetMyApplicationsResponse = JobCandidateControllerGetMyApplicationsResponses[keyof JobCandidateControllerGetMyApplicationsResponses];
+
 export type JobCandidateControllerRemoveData = {
     body?: never;
     path: {
@@ -642,7 +682,7 @@ export type JobCandidateControllerFindOneResponses = {
 
 export type JobCandidateControllerFindOneResponse = JobCandidateControllerFindOneResponses[keyof JobCandidateControllerFindOneResponses];
 
-export type JobCandidateControllerUpdateData = {
+export type JobCandidateControllerUpdateStatusData = {
     body: UpdateJobCandidateDto;
     path: {
         id: string;
@@ -651,20 +691,20 @@ export type JobCandidateControllerUpdateData = {
     url: '/job-candidate/{id}';
 };
 
-export type JobCandidateControllerUpdateErrors = {
+export type JobCandidateControllerUpdateStatusErrors = {
     /**
      * Internal server error
      */
     500: unknown;
 };
 
-export type JobCandidateControllerUpdateResponses = {
+export type JobCandidateControllerUpdateStatusResponses = {
     default: {
         [key: string]: unknown;
     };
 };
 
-export type JobCandidateControllerUpdateResponse = JobCandidateControllerUpdateResponses[keyof JobCandidateControllerUpdateResponses];
+export type JobCandidateControllerUpdateStatusResponse = JobCandidateControllerUpdateStatusResponses[keyof JobCandidateControllerUpdateStatusResponses];
 
 export type JobCandidateControllerGetCandidatesByJobData = {
     body?: never;
@@ -689,25 +729,3 @@ export type JobCandidateControllerGetCandidatesByJobResponses = {
 };
 
 export type JobCandidateControllerGetCandidatesByJobResponse = JobCandidateControllerGetCandidatesByJobResponses[keyof JobCandidateControllerGetCandidatesByJobResponses];
-
-export type JobCandidateControllerGetMyApplicationsData = {
-    body?: never;
-    path?: never;
-    query?: never;
-    url: '/job-candidate/me';
-};
-
-export type JobCandidateControllerGetMyApplicationsErrors = {
-    /**
-     * Internal server error
-     */
-    500: unknown;
-};
-
-export type JobCandidateControllerGetMyApplicationsResponses = {
-    default: Array<{
-        [key: string]: unknown;
-    }>;
-};
-
-export type JobCandidateControllerGetMyApplicationsResponse = JobCandidateControllerGetMyApplicationsResponses[keyof JobCandidateControllerGetMyApplicationsResponses];

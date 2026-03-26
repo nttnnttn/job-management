@@ -2,7 +2,7 @@
 
 import type { Client, Options as Options2, TDataShape } from './client';
 import { client } from './client.gen';
-import type { AppControllerGetHelloData, AppControllerGetHelloErrors, AppControllerGetHelloResponses, AuthControllerRegisterData, AuthControllerRegisterErrors, AuthControllerRegisterResponses, AuthControllerSignInData, AuthControllerSignInErrors, AuthControllerSignInResponses, CandidatesControllerCreateData, CandidatesControllerCreateErrors, CandidatesControllerCreateResponses, CandidatesControllerFindAllData, CandidatesControllerFindAllErrors, CandidatesControllerFindAllResponses, CandidatesControllerGetCandidateByEmailData, CandidatesControllerGetCandidateByEmailErrors, CandidatesControllerGetCandidateByEmailResponses, CandidatesControllerRemoveData, CandidatesControllerRemoveErrors, CandidatesControllerRemoveResponses, CandidatesControllerUpdateData, CandidatesControllerUpdateErrors, CandidatesControllerUpdateResponses, JobCandidateControllerApplyJobsData, JobCandidateControllerApplyJobsErrors, JobCandidateControllerApplyJobsResponses, JobCandidateControllerFindAllData, JobCandidateControllerFindAllErrors, JobCandidateControllerFindAllResponses, JobCandidateControllerFindOneData, JobCandidateControllerFindOneErrors, JobCandidateControllerFindOneResponses, JobCandidateControllerGetCandidatesByJobData, JobCandidateControllerGetCandidatesByJobErrors, JobCandidateControllerGetCandidatesByJobResponses, JobCandidateControllerGetMyApplicationsData, JobCandidateControllerGetMyApplicationsErrors, JobCandidateControllerGetMyApplicationsResponses, JobCandidateControllerRemoveData, JobCandidateControllerRemoveErrors, JobCandidateControllerRemoveResponses, JobCandidateControllerUpdateData, JobCandidateControllerUpdateErrors, JobCandidateControllerUpdateResponses, JobsControllerCreateData, JobsControllerCreateErrors, JobsControllerCreateResponses, JobsControllerFindAllData, JobsControllerFindAllErrors, JobsControllerFindAllResponses, JobsControllerFindOneData, JobsControllerFindOneErrors, JobsControllerFindOneResponses, JobsControllerRemoveData, JobsControllerRemoveErrors, JobsControllerRemoveResponses, JobsControllerUpdateData, JobsControllerUpdateErrors, JobsControllerUpdateResponses, UsersControllerCreateBulkData, UsersControllerCreateBulkErrors, UsersControllerCreateBulkResponses, UsersControllerFindOneData, UsersControllerFindOneErrors, UsersControllerFindOneResponses, UsersControllerGetAllUsersData, UsersControllerGetAllUsersErrors, UsersControllerGetAllUsersResponses, UsersControllerGetProfileData, UsersControllerGetProfileErrors, UsersControllerGetProfileResponses, UsersControllerRemoveData, UsersControllerRemoveErrors, UsersControllerRemoveResponses, UsersControllerSearchAllData, UsersControllerSearchAllErrors, UsersControllerSearchAllResponses, UsersControllerUpdateData, UsersControllerUpdateErrors, UsersControllerUpdateResponses } from './types.gen';
+import type { AppControllerGetHelloData, AppControllerGetHelloErrors, AppControllerGetHelloResponses, AuthControllerRegisterData, AuthControllerRegisterErrors, AuthControllerRegisterResponses, AuthControllerSignInData, AuthControllerSignInErrors, AuthControllerSignInResponses, CandidatesControllerCreateData, CandidatesControllerCreateErrors, CandidatesControllerCreateResponses, CandidatesControllerFindAllData, CandidatesControllerFindAllErrors, CandidatesControllerFindAllResponses, CandidatesControllerGetCandidateByEmailData, CandidatesControllerGetCandidateByEmailErrors, CandidatesControllerGetCandidateByEmailResponses, CandidatesControllerRemoveData, CandidatesControllerRemoveErrors, CandidatesControllerRemoveResponses, CandidatesControllerUpdateData, CandidatesControllerUpdateErrors, CandidatesControllerUpdateResponses, JobCandidateControllerApplyJobsData, JobCandidateControllerApplyJobsErrors, JobCandidateControllerApplyJobsResponses, JobCandidateControllerFindAllData, JobCandidateControllerFindAllErrors, JobCandidateControllerFindAllResponses, JobCandidateControllerFindOneData, JobCandidateControllerFindOneErrors, JobCandidateControllerFindOneResponses, JobCandidateControllerGetCandidatesByJobData, JobCandidateControllerGetCandidatesByJobErrors, JobCandidateControllerGetCandidatesByJobResponses, JobCandidateControllerGetMyApplicationsData, JobCandidateControllerGetMyApplicationsErrors, JobCandidateControllerGetMyApplicationsResponses, JobCandidateControllerRemoveData, JobCandidateControllerRemoveErrors, JobCandidateControllerRemoveResponses, JobCandidateControllerUpdateStatusData, JobCandidateControllerUpdateStatusErrors, JobCandidateControllerUpdateStatusResponses, JobsControllerCreateData, JobsControllerCreateErrors, JobsControllerCreateResponses, JobsControllerFindAllData, JobsControllerFindAllErrors, JobsControllerFindAllResponses, JobsControllerFindOneData, JobsControllerFindOneErrors, JobsControllerFindOneResponses, JobsControllerRemoveData, JobsControllerRemoveErrors, JobsControllerRemoveResponses, JobsControllerUpdateData, JobsControllerUpdateErrors, JobsControllerUpdateResponses, UsersControllerCreateBulkData, UsersControllerCreateBulkErrors, UsersControllerCreateBulkResponses, UsersControllerFindOneData, UsersControllerFindOneErrors, UsersControllerFindOneResponses, UsersControllerGetAllUsersData, UsersControllerGetAllUsersErrors, UsersControllerGetAllUsersResponses, UsersControllerGetProfileData, UsersControllerGetProfileErrors, UsersControllerGetProfileResponses, UsersControllerRemoveData, UsersControllerRemoveErrors, UsersControllerRemoveResponses, UsersControllerSearchAllData, UsersControllerSearchAllErrors, UsersControllerSearchAllResponses, UsersControllerUpdateData, UsersControllerUpdateErrors, UsersControllerUpdateProfileData, UsersControllerUpdateProfileErrors, UsersControllerUpdateProfileResponses, UsersControllerUpdateResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean> = Options2<TData, ThrowOnError> & {
     /**
@@ -70,6 +70,16 @@ export const usersControllerGetProfile = <ThrowOnError extends boolean = false>(
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/users/me',
     ...options
+});
+
+export const usersControllerUpdateProfile = <ThrowOnError extends boolean = false>(options: Options<UsersControllerUpdateProfileData, ThrowOnError>) => (options.client ?? client).patch<UsersControllerUpdateProfileResponses, UsersControllerUpdateProfileErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/users/me',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
 });
 
 export const authControllerSignIn = <ThrowOnError extends boolean = false>(options: Options<AuthControllerSignInData, ThrowOnError>) => (options.client ?? client).post<AuthControllerSignInResponses, AuthControllerSignInErrors, ThrowOnError>({
@@ -146,11 +156,7 @@ export const jobsControllerRemove = <ThrowOnError extends boolean = false>(optio
     ...options
 });
 
-export const jobsControllerFindOne = <ThrowOnError extends boolean = false>(options: Options<JobsControllerFindOneData, ThrowOnError>) => (options.client ?? client).get<JobsControllerFindOneResponses, JobsControllerFindOneErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/jobs/{id}',
-    ...options
-});
+export const jobsControllerFindOne = <ThrowOnError extends boolean = false>(options: Options<JobsControllerFindOneData, ThrowOnError>) => (options.client ?? client).get<JobsControllerFindOneResponses, JobsControllerFindOneErrors, ThrowOnError>({ url: '/jobs/{id}', ...options });
 
 export const jobsControllerUpdate = <ThrowOnError extends boolean = false>(options: Options<JobsControllerUpdateData, ThrowOnError>) => (options.client ?? client).patch<JobsControllerUpdateResponses, JobsControllerUpdateErrors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
@@ -178,6 +184,12 @@ export const jobCandidateControllerApplyJobs = <ThrowOnError extends boolean = f
     }
 });
 
+export const jobCandidateControllerGetMyApplications = <ThrowOnError extends boolean = false>(options?: Options<JobCandidateControllerGetMyApplicationsData, ThrowOnError>) => (options?.client ?? client).get<JobCandidateControllerGetMyApplicationsResponses, JobCandidateControllerGetMyApplicationsErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/job-candidate/me',
+    ...options
+});
+
 export const jobCandidateControllerRemove = <ThrowOnError extends boolean = false>(options: Options<JobCandidateControllerRemoveData, ThrowOnError>) => (options.client ?? client).delete<JobCandidateControllerRemoveResponses, JobCandidateControllerRemoveErrors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/job-candidate/{id}',
@@ -190,7 +202,7 @@ export const jobCandidateControllerFindOne = <ThrowOnError extends boolean = fal
     ...options
 });
 
-export const jobCandidateControllerUpdate = <ThrowOnError extends boolean = false>(options: Options<JobCandidateControllerUpdateData, ThrowOnError>) => (options.client ?? client).patch<JobCandidateControllerUpdateResponses, JobCandidateControllerUpdateErrors, ThrowOnError>({
+export const jobCandidateControllerUpdateStatus = <ThrowOnError extends boolean = false>(options: Options<JobCandidateControllerUpdateStatusData, ThrowOnError>) => (options.client ?? client).patch<JobCandidateControllerUpdateStatusResponses, JobCandidateControllerUpdateStatusErrors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/job-candidate/{id}',
     ...options,
@@ -203,11 +215,5 @@ export const jobCandidateControllerUpdate = <ThrowOnError extends boolean = fals
 export const jobCandidateControllerGetCandidatesByJob = <ThrowOnError extends boolean = false>(options: Options<JobCandidateControllerGetCandidatesByJobData, ThrowOnError>) => (options.client ?? client).get<JobCandidateControllerGetCandidatesByJobResponses, JobCandidateControllerGetCandidatesByJobErrors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/job-candidate/job/{jobId}',
-    ...options
-});
-
-export const jobCandidateControllerGetMyApplications = <ThrowOnError extends boolean = false>(options?: Options<JobCandidateControllerGetMyApplicationsData, ThrowOnError>) => (options?.client ?? client).get<JobCandidateControllerGetMyApplicationsResponses, JobCandidateControllerGetMyApplicationsErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/job-candidate/me',
     ...options
 });

@@ -1,14 +1,15 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { applyJob } from "../../api/jobCandidate.api";
 
 export const useApplyJob = () => {
+  const queryClient = useQueryClient();
+
   return useMutation({
-    mutationFn: ({
-      jobId,
-      userId,
-    }: {
-      jobId: string;
-      userId: string;
-    }) => applyJob({ jobId, userId }),
+    mutationFn: applyJob,
+    onSuccess: () => {
+      // reload jobs + applications
+      queryClient.invalidateQueries({ queryKey: ["jobs"] });
+      queryClient.invalidateQueries({ queryKey: ["my-applications"] });
+    },
   });
 };

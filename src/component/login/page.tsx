@@ -30,9 +30,7 @@ export default function LoginPage() {
         const decoded = jwtDecode<IUserToken>(token);
 
       // nếu là candidate → lưu candidate_id
-      if (decoded.role === "candidate") {
         localStorage.setItem("user_id", decoded.userId);
-      }
 
       setMessage("✅ Đăng nhập thành công!");
       setTimeout(() => navigate("/home"), 1500); //Chuyển hướng

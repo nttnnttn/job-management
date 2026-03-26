@@ -1,17 +1,32 @@
-import React from "react";
 import { NavLink, useNavigate } from "react-router-dom";
-import { jwtDecode } from "jwt-decode";
 import { useAuth } from "../../hooks/useAuth";
+import { useEffect, useRef, useState } from "react";
 
 export default function Navbar() {
   const navigate = useNavigate();
   const user = useAuth();
-  const role = user?.role;
+
+  const [open, setOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const role = user?.role?.toLowerCase?.() || "";
 
   const handleLogout = () => {
     localStorage.removeItem("access_token");
     navigate("/login");
   };
+
+  // click ngoài → đóng menu
+  useEffect(() => {
+    const handleClickOutside = (e: any) => {
+      if (!dropdownRef.current?.contains(e.target)) {
+        setOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   return (
     <nav style={styles.navbar}>
@@ -37,9 +52,11 @@ export default function Navbar() {
 
         {/* Candidate */}
         {role === "candidate" && (
-          <NavLink to="/jobs" style={styles.link}>
-            Jobs
-          </NavLink>
+          <>
+            <NavLink to="/jobs" style={styles.link}>
+              Jobs
+            </NavLink>
+          </>
         )}
 
         {/* Recruiter */}
@@ -54,6 +71,11 @@ export default function Navbar() {
             </NavLink>
           </>
         )}
+
+        {/* Profile */}
+        <NavLink to="/profile" style={styles.link}>
+          👤 Profile
+        </NavLink>
 
         <button onClick={handleLogout} style={styles.logoutBtn}>
           Đăng xuất
