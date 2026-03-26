@@ -1,12 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
 import { getProfile } from "../../api/users.api";
+import { IUser } from "../../types/user";
 
 export const useProfile = () => {
-  return useQuery({
+  return useQuery<IUser>({
     queryKey: ["profile"],
-    queryFn: async () => {
-      const res = await getProfile();
-      return res;
-    },
+    queryFn: getProfile,
   });
 };

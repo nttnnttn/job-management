@@ -45,7 +45,9 @@ export default function JobListPage() {
   useEffect(() => {
     console.log(myApplications)
     if (!myApplications || !Array.isArray(myApplications)) return; 
-      setAppliedJobs(myApplications);
+      const jobIds = myApplications;
+
+    setAppliedJobs(jobIds);
   }, [myApplications]);
 
   const handleDelete = (jobId: string) => {
@@ -95,34 +97,6 @@ export default function JobListPage() {
         },
         onError: (err: any) => {
           const msg = err?.message ||"You already applied this job";
-
-          setMessage(`❌ ${msg}`);
-        },
-      }
-    );
-  };
-
-  const handleApply = (jobId: string) => {
-    if (!userId) {
-      setMessage("❌ You must login as candidate");
-      return;
-    }
-
-    const confirmApply = window.confirm(
-    "Do you want to apply for this job?"
-    );
-
-    if (!confirmApply) return;
-
-    applyJob.mutate(
-      { jobId, userId },
-      {
-        onSuccess: () => {
-          setMessage("✅ Apply success!");
-          setAppliedJobs((prev) => [...prev, jobId]);
-        },
-        onError: (err: any) => {
-          const msg = err?.response?.data?.message ||"You already applied this job";
 
           setMessage(`❌ ${msg}`);
         },

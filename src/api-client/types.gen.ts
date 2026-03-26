@@ -31,10 +31,11 @@ export type PaginatedUserDto = {
 };
 
 export type UpdateUserDto = {
+    level?: 'intern' | 'junior' | 'middle' | 'senior';
     fullName?: string;
     phone?: string;
-    password?: string;
     email?: string;
+    password?: string;
     role?: 'candidate' | 'recruiter';
 };
 
