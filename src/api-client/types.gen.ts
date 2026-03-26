@@ -31,10 +31,11 @@ export type PaginatedUserDto = {
 };
 
 export type UpdateUserDto = {
+    level?: 'intern' | 'junior' | 'middle' | 'senior';
     fullName?: string;
     phone?: string;
-    password?: string;
     email?: string;
+    password?: string;
     role?: 'candidate' | 'recruiter';
 };
 
@@ -86,64 +87,12 @@ export type UpdateJobDto = {
 
 export type CreateJobCandidateDto = {
     job: string;
-    status: 'applied' | 'interview' | 'approved' | 'rejected' | 'hired';
+    status: 'applied' | 'interview' | 'hired';
 };
 
 export type UpdateJobCandidateDto = {
     job?: string;
-    status?: 'applied' | 'interview' | 'approved' | 'rejected' | 'hired';
-};
-
-export type CreateNotificationDto = {
-    type: 'job_application' | 'application_approved' | 'application_rejected' | 'application_interview';
-    title: string;
-    message: string;
-    recipient: string;
-    sender?: string;
-    job?: string;
-    jobCandidate?: string;
-    status?: 'unread' | 'read';
-    metadata?: {
-        [key: string]: unknown;
-    };
-};
-
-export type SenderDto = {
-    _id: string;
-    email: string;
-    fullName?: string;
-};
-
-export type JobDto = {
-    _id: string;
-    title: string;
-    company: string;
-};
-
-export type JobCandidateDto = {
-    _id: string;
-    status: string;
-};
-
-export type NotificationDto = {
-    _id: string;
-    type: 'job_application' | 'application_approved' | 'application_rejected' | 'application_interview';
-    status: 'unread' | 'read';
-    title: string;
-    message: string;
-    recipient: string;
-    sender?: SenderDto;
-    job?: JobDto;
-    jobCandidate?: JobCandidateDto;
-    metadata?: {
-        [key: string]: unknown;
-    };
-    createdAt: string;
-    updatedAt: string;
-};
-
-export type UpdateNotificationDto = {
-    status?: 'unread' | 'read';
+    status?: 'applied' | 'interview' | 'hired';
 };
 
 export type AppControllerGetHelloData = {
@@ -779,193 +728,3 @@ export type JobCandidateControllerGetCandidatesByJobResponses = {
 };
 
 export type JobCandidateControllerGetCandidatesByJobResponse = JobCandidateControllerGetCandidatesByJobResponses[keyof JobCandidateControllerGetCandidatesByJobResponses];
-
-export type NotificationsControllerFindAllData = {
-    body?: never;
-    path?: never;
-    query?: never;
-    url: '/notifications';
-};
-
-export type NotificationsControllerFindAllErrors = {
-    /**
-     * Internal server error
-     */
-    500: unknown;
-    default: Array<NotificationDto>;
-};
-
-export type NotificationsControllerFindAllError = NotificationsControllerFindAllErrors[keyof NotificationsControllerFindAllErrors];
-
-export type NotificationsControllerFindAllResponses = {
-    200: Array<NotificationDto>;
-};
-
-export type NotificationsControllerFindAllResponse = NotificationsControllerFindAllResponses[keyof NotificationsControllerFindAllResponses];
-
-export type NotificationsControllerCreateData = {
-    body: CreateNotificationDto;
-    path?: never;
-    query?: never;
-    url: '/notifications';
-};
-
-export type NotificationsControllerCreateErrors = {
-    /**
-     * Internal server error
-     */
-    500: unknown;
-    default: NotificationDto;
-};
-
-export type NotificationsControllerCreateError = NotificationsControllerCreateErrors[keyof NotificationsControllerCreateErrors];
-
-export type NotificationsControllerCreateResponses = {
-    201: NotificationDto;
-};
-
-export type NotificationsControllerCreateResponse = NotificationsControllerCreateResponses[keyof NotificationsControllerCreateResponses];
-
-export type NotificationsControllerFindUnreadData = {
-    body?: never;
-    path?: never;
-    query?: never;
-    url: '/notifications/unread';
-};
-
-export type NotificationsControllerFindUnreadErrors = {
-    /**
-     * Internal server error
-     */
-    500: unknown;
-    default: Array<NotificationDto>;
-};
-
-export type NotificationsControllerFindUnreadError = NotificationsControllerFindUnreadErrors[keyof NotificationsControllerFindUnreadErrors];
-
-export type NotificationsControllerFindUnreadResponses = {
-    200: Array<NotificationDto>;
-};
-
-export type NotificationsControllerFindUnreadResponse = NotificationsControllerFindUnreadResponses[keyof NotificationsControllerFindUnreadResponses];
-
-export type NotificationsControllerGetUnreadCountData = {
-    body?: never;
-    path?: never;
-    query?: never;
-    url: '/notifications/unread/count';
-};
-
-export type NotificationsControllerGetUnreadCountErrors = {
-    /**
-     * Internal server error
-     */
-    500: unknown;
-    default: unknown;
-};
-
-export type NotificationsControllerGetUnreadCountResponses = {
-    200: {
-        count?: number;
-    };
-};
-
-export type NotificationsControllerGetUnreadCountResponse = NotificationsControllerGetUnreadCountResponses[keyof NotificationsControllerGetUnreadCountResponses];
-
-export type NotificationsControllerMarkAsReadData = {
-    body?: never;
-    path: {
-        id: string;
-    };
-    query?: never;
-    url: '/notifications/{id}/read';
-};
-
-export type NotificationsControllerMarkAsReadErrors = {
-    /**
-     * Internal server error
-     */
-    500: unknown;
-    default: NotificationDto;
-};
-
-export type NotificationsControllerMarkAsReadError = NotificationsControllerMarkAsReadErrors[keyof NotificationsControllerMarkAsReadErrors];
-
-export type NotificationsControllerMarkAsReadResponses = {
-    200: NotificationDto;
-};
-
-export type NotificationsControllerMarkAsReadResponse = NotificationsControllerMarkAsReadResponses[keyof NotificationsControllerMarkAsReadResponses];
-
-export type NotificationsControllerMarkAllAsReadData = {
-    body?: never;
-    path?: never;
-    query?: never;
-    url: '/notifications/read-all';
-};
-
-export type NotificationsControllerMarkAllAsReadErrors = {
-    /**
-     * Internal server error
-     */
-    500: unknown;
-    default: unknown;
-};
-
-export type NotificationsControllerMarkAllAsReadResponses = {
-    200: {
-        modifiedCount?: number;
-    };
-};
-
-export type NotificationsControllerMarkAllAsReadResponse = NotificationsControllerMarkAllAsReadResponses[keyof NotificationsControllerMarkAllAsReadResponses];
-
-export type NotificationsControllerRemoveData = {
-    body?: never;
-    path: {
-        id: string;
-    };
-    query?: never;
-    url: '/notifications/{id}';
-};
-
-export type NotificationsControllerRemoveErrors = {
-    /**
-     * Internal server error
-     */
-    500: unknown;
-    default: unknown;
-};
-
-export type NotificationsControllerRemoveResponses = {
-    200: {
-        message?: string;
-    };
-};
-
-export type NotificationsControllerRemoveResponse = NotificationsControllerRemoveResponses[keyof NotificationsControllerRemoveResponses];
-
-export type NotificationsControllerUpdateData = {
-    body: UpdateNotificationDto;
-    path: {
-        id: string;
-    };
-    query?: never;
-    url: '/notifications/{id}';
-};
-
-export type NotificationsControllerUpdateErrors = {
-    /**
-     * Internal server error
-     */
-    500: unknown;
-    default: NotificationDto;
-};
-
-export type NotificationsControllerUpdateError = NotificationsControllerUpdateErrors[keyof NotificationsControllerUpdateErrors];
-
-export type NotificationsControllerUpdateResponses = {
-    200: NotificationDto;
-};
-
-export type NotificationsControllerUpdateResponse = NotificationsControllerUpdateResponses[keyof NotificationsControllerUpdateResponses];

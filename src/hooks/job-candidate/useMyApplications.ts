@@ -6,7 +6,7 @@ export const useMyApplications = () => {
     queryKey: ["my-applications"],
     queryFn: async () => {
       const res = await jobCandidateControllerGetMyApplications();
-      return res.data || []; // ✅ luôn trả array
+      return res.data || []; 
     },
   });
 };

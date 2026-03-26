@@ -45,7 +45,9 @@ export default function JobListPage() {
   useEffect(() => {
     console.log(myApplications)
     if (!myApplications || !Array.isArray(myApplications)) return; 
-      setAppliedJobs(myApplications);
+      const jobIds = myApplications;
+
+    setAppliedJobs(jobIds);
   }, [myApplications]);
 
   const handleDelete = (jobId: string) => {

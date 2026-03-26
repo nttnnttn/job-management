@@ -1,7 +1,6 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import { useEffect, useRef, useState } from "react";
-import { NotificationBell } from "../notifications/NotificationBell";
 
 export default function Navbar() {
   const navigate = useNavigate();
@@ -19,8 +18,8 @@ export default function Navbar() {
 
   // click ngoài → đóng menu
   useEffect(() => {
-    const handleClickOutside = (e: any) => {
-      if (!dropdownRef.current?.contains(e.target)) {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (!dropdownRef.current?.contains(e.target as Node)) {
         setOpen(false);
       }
     };
@@ -30,99 +29,58 @@ export default function Navbar() {
   }, []);
 
   return (
-    <nav style={styles.navbar}>
-      <h2 style={styles.logo}>Job Management</h2>
+    <nav className="flex justify-between items-center bg-blue-600 px-8 py-3 fixed top-0 left-0 right-0 z-50 text-white">
+      <h2 className="text-lg font-bold">Job Management</h2>
 
-      <div style={styles.links}>
-        {/* Admin */}
+      <div className="flex items-center gap-5">
         {role === "admin" && (
           <>
-            <NavLink to="/users" style={styles.link}>
-              Users
-            </NavLink>
-
-            <NavLink to="/jobs" style={styles.link}>
-              Jobs
-            </NavLink>
-
-            <NavLink to="/candidates" style={styles.link}>
-              Candidates
-            </NavLink>
+            <NavLink to="/users">Users</NavLink>
+            <NavLink to="/jobs">Jobs</NavLink>
+            <NavLink to="/candidates">Candidates</NavLink>
           </>
         )}
 
-        {/* Candidate */}
-        {role === "candidate" && (
-          <>
-            <NavLink to="/jobs" style={styles.link}>
-              Jobs
-            </NavLink>
-          </>
-        )}
+        {role === "candidate" && <NavLink to="/jobs">Jobs</NavLink>}
 
-        {/* Recruiter */}
         {role === "recruiter" && (
           <>
-            <NavLink to="/jobs" style={styles.link}>
-              Jobs
-            </NavLink>
-
-            <NavLink to="/candidates" style={styles.link}>
-              Candidates
-            </NavLink>
+            <NavLink to="/jobs">Jobs</NavLink>
+            <NavLink to="/candidates">Candidates</NavLink>
           </>
         )}
 
-        {/* Notifications */}
-        <NotificationBell />
+        {/* Profile dropdown */}
+        <div className="relative" ref={dropdownRef}>
+          <button
+            onClick={() => setOpen(!open)}
+            className="font-medium hover:opacity-80"
+          >
+            👤 {user?.email}
+          </button>
 
-        {/* Profile */}
-        <NavLink to="/profile" style={styles.link}>
-          👤 Profile
-        </NavLink>
+          {open && (
+            <div className="absolute right-0 mt-2 bg-white text-black rounded shadow-md w-40">
+              <div
+                className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                onClick={() => {
+                  navigate("/profile");
+                  setOpen(false);
+                }}
+              >
+                Hồ sơ cá nhân
+              </div>
 
-        <button onClick={handleLogout} style={styles.logoutBtn}>
-          Đăng xuất
-        </button>
+              <div
+                className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                onClick={handleLogout}
+              >
+                Đăng xuất
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </nav>
   );
 }
-
-const styles = {
-  navbar: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    backgroundColor: "#007bff",
-    padding: "10px 30px",
-    position: "fixed" as const,
-    top: 0,
-    left: 0,
-    right: 0,
-    zIndex: 1000,
-    color: "#fff",
-  },
-  logo: {
-    fontSize: "20px",
-    fontWeight: "bold",
-  },
-  links: {
-    display: "flex",
-    alignItems: "center",
-    gap: "20px",
-  },
-  link: {
-    textDecoration: "none",
-    color: "#fff",
-    fontWeight: 500,
-  },
-  logoutBtn: {
-    backgroundColor: "#f44336",
-    border: "none",
-    padding: "6px 12px",
-    borderRadius: "6px",
-    color: "#fff",
-    cursor: "pointer",
-  },
-};

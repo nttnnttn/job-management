@@ -17,8 +17,8 @@ import JobListPage from "./pages/jobs/list/list";
 import CreateJobPage from "./pages/jobs/create/create";
 import UpdateJobPage from "./pages/jobs/update/update";
 
-import ProfilePage from "./pages/users/page"; // bạn sẽ tạo file này
-
+import ProfilePage from "./pages/profile/updateProfile";
+import ProfileApplicationsPage from "./pages/profile/application-history";
 // Setup API client (interceptor + baseURL)
 setupApiClient();
 
@@ -33,7 +33,7 @@ const router = createBrowserRouter([
     children: [
       { path: "home", element: <h1>Home Page</h1> },
       { path: "users", element: <UsersPage /> },
-       { path: "profile", element: <ProfilePage /> },
+      { path: "profile", element: <ProfilePage /> },
       { path: "candidates", element: <CandidatesPage /> },
       { path: "jobs", element: <JobListPage />},
       { path: "jobs/create", element: <CreateJobPage /> },
@@ -41,6 +41,7 @@ const router = createBrowserRouter([
 
       { path: "candidates/:jobId", element: <CandidatesPage /> },
       { path: "applications", element: <h1>Applications Page</h1> },
+      { path: "profile/applications", element: <ProfileApplicationsPage /> },
     ]
   }
 ]);

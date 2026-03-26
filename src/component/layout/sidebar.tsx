@@ -46,7 +46,7 @@ export default function Sidebar() {
             <Link
               key={item.path}
               to={item.path}
-              className={`px-4 py-2 rounded-md transition-all
+              className={`px-4 py-2 rounded-md transition
                 ${
                   active
                     ? "bg-blue-500 text-white"
@@ -60,8 +60,5 @@ export default function Sidebar() {
       </div>
     </div>
   );
-}
-function userAuth() {
-  throw new Error("Function not implemented.");
 }
 

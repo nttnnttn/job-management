@@ -11,7 +11,7 @@ import { Job } from "../types/job";
  * GET /jobs?query
  */
 // const res = await authControllerSignIn({ body: {email, password}});
-export const getJobs = async (params?: any): Promise<Job[]> => {
+export const getJobs = async (params?: any): Promise <Job[]> => {
   try {
     const res = await jobsControllerFindAll({ query: params });
     const data = res.data ?? [];
