@@ -1,6 +1,7 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import { useEffect, useRef, useState } from "react";
+import { NotificationBell } from "../notifications/NotificationBell";
 
 export default function Navbar() {
   const navigate = useNavigate();
@@ -71,6 +72,9 @@ export default function Navbar() {
             </NavLink>
           </>
         )}
+
+        {/* Notifications */}
+        <NotificationBell />
 
         {/* Profile */}
         <NavLink to="/profile" style={styles.link}>
