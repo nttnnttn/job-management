@@ -5,6 +5,7 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 import { setupApiClient } from "./configs/setup-client";
+import { NotificationProvider } from "./contexts/NotificationContext";
 
 import LoginPage from "./component/login/page";
 import RegisterPage from "./component/register/page";
@@ -49,16 +50,18 @@ const router = createBrowserRouter([
 export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />
+      <NotificationProvider>
+        <RouterProvider router={router} />
 
-      {/* Toast hiển thị toàn app */}
-      <ToastContainer
-        position="top-right"
-        autoClose={2000}
-        hideProgressBar={false}
-        newestOnTop
-        closeOnClick
-        pauseOnHover aria-label={undefined}      />
+        {/* Toast hiển thị toàn app */}
+        <ToastContainer
+          position="top-right"
+          autoClose={2000}
+          hideProgressBar={false}
+          newestOnTop
+          closeOnClick
+          pauseOnHover aria-label={undefined}      />
+        </NotificationProvider>
     </QueryClientProvider>
   );
 }
