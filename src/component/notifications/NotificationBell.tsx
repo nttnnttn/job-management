@@ -5,7 +5,7 @@ import './notifications.css';
 
 export const NotificationBell: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const { unreadCount, isConnected, refreshUnreadCount } = useNotifications();
+  const { unreadCount, isConnected } = useNotifications();
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Close dropdown when clicking outside
@@ -18,8 +18,6 @@ export const NotificationBell: React.FC = () => {
 
     if (isOpen) {
       document.addEventListener('mousedown', handleClickOutside);
-    } else {
-      refreshUnreadCount();
     }
     
     return () => {
@@ -30,7 +28,6 @@ export const NotificationBell: React.FC = () => {
   const toggleDropdown = () => {
     setIsOpen(!isOpen);
   };
-  console.log('unreadCountunreadCount', unreadCount)
 
   return (
     <div className="notification-bell-container" ref={dropdownRef}>
