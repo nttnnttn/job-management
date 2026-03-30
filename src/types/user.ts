@@ -6,3 +6,5 @@ export interface IUser {
   level?: "intern" | "junior" | "middle" | "senior";
   role?: string;
 }
+
+export type UserRole = 'candidate' | 'recruiter';
