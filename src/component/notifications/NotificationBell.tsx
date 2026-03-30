@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useNotifications } from '../../contexts/useNotifications';
 import { NotificationDropdown } from './NotificationDropdown';
 import './notifications.css';
+import { useNotifications } from '../../contexts/NotificationContext';
 
 export const NotificationBell: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
