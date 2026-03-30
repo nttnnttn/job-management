@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useNotifications } from '../../hooks/useNotifications';
+import { useNotifications } from '../../contexts/useNotifications';
 import { NotificationDropdown } from './NotificationDropdown';
 import './notifications.css';
 
