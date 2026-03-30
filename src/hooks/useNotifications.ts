@@ -1,11 +1,13 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { io, Socket } from 'socket.io-client';
+import { notificationsApi } from '../api/notifications.api';
 import type { NotificationItem } from '../types/notification';
 
 export const useNotifications = () => {
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [isConnected, setIsConnected] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const socketRef = useRef<Socket | null>(null);
 
   const connect = useCallback(() => {
@@ -30,31 +32,13 @@ export const useNotifications = () => {
       setIsConnected(false);
     });
 
-    socket.on('new_notification', (notification: NotificationItem) => {
-      console.log('New notification received:', notification);
-      setNotifications((prev) => [notification, ...prev]);
-      
-      // Show browser notification if permitted
-      if (Notification.permission === 'granted') {
-        new Notification(notification.title, {
-          body: notification.message,
-          icon: '/logo192.png',
-        });
-      }
-    });
-
+    // Listen for unread count updates from backend
     socket.on('unread_count', ({ count }: { count: number }) => {
+      console.log('Unread count updated:', count);
       setUnreadCount(count);
     });
 
-    socket.on('notifications_list', (notificationsList: NotificationItem[]) => {
-      setNotifications(notificationsList);
-    });
-
     socketRef.current = socket;
-
-    // Request notifications list on connect
-    socket.emit('get_notifications');
   }, []);
 
   const disconnect = useCallback(() => {
@@ -64,15 +48,39 @@ export const useNotifications = () => {
     }
   }, []);
 
-  const refreshNotifications = useCallback(() => {
-    if (socketRef.current?.connected) {
-      socketRef.current.emit('get_notifications');
+  // Fetch notifications from API
+  const fetchNotifications = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const data = await notificationsApi.getAll();
+      setNotifications(data);
+    } catch (error) {
+      console.error('Failed to fetch notifications:', error);
+    } finally {
+      setIsLoading(false);
     }
   }, []);
 
-  const refreshUnreadCount = useCallback(() => {
-    if (socketRef.current?.connected) {
-      socketRef.current.emit('get_unread_count');
+  // Fetch unread notifications from API
+  const fetchUnreadNotifications = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const data = await notificationsApi.getUnread();
+      setNotifications(data);
+    } catch (error) {
+      console.error('Failed to fetch unread notifications:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  // Fetch unread count from API
+  const fetchUnreadCount = useCallback(async () => {
+    try {
+      const count = await notificationsApi.getUnreadCount();
+      setUnreadCount(count);
+    } catch (error) {
+      console.error('Failed to fetch unread count:', error);
     }
   }, []);
 
@@ -93,8 +101,10 @@ export const useNotifications = () => {
     notifications,
     unreadCount,
     isConnected,
-    refreshNotifications,
-    refreshUnreadCount,
+    isLoading,
+    fetchNotifications,
+    fetchUnreadNotifications,
+    fetchUnreadCount,
     connect,
     disconnect,
   };
