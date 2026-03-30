@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNotifications } from '../../hooks/useNotifications';
+import { useNotifications } from '../../contexts/useNotifications';
 import { NotificationItem } from './NotificationItem';
 import { notificationsApi } from '../../api/notifications.api';
 import './notifications.css';
