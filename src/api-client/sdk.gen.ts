@@ -2,7 +2,7 @@
 
 import type { Client, Options as Options2, TDataShape } from './client';
 import { client } from './client.gen';
-import type { AppControllerGetHelloData, AppControllerGetHelloErrors, AppControllerGetHelloResponses, AuthControllerRegisterData, AuthControllerRegisterErrors, AuthControllerRegisterResponses, AuthControllerSignInData, AuthControllerSignInErrors, AuthControllerSignInResponses, CandidatesControllerCreateData, CandidatesControllerCreateErrors, CandidatesControllerCreateResponses, CandidatesControllerFindAllData, CandidatesControllerFindAllErrors, CandidatesControllerFindAllResponses, CandidatesControllerGetCandidateByEmailData, CandidatesControllerGetCandidateByEmailErrors, CandidatesControllerGetCandidateByEmailResponses, CandidatesControllerRemoveData, CandidatesControllerRemoveErrors, CandidatesControllerRemoveResponses, CandidatesControllerUpdateData, CandidatesControllerUpdateErrors, CandidatesControllerUpdateResponses, JobCandidateControllerApplyJobsData, JobCandidateControllerApplyJobsErrors, JobCandidateControllerApplyJobsResponses, JobCandidateControllerFindAllData, JobCandidateControllerFindAllErrors, JobCandidateControllerFindAllResponses, JobCandidateControllerFindOneData, JobCandidateControllerFindOneErrors, JobCandidateControllerFindOneResponses, JobCandidateControllerGetCandidatesByJobData, JobCandidateControllerGetCandidatesByJobErrors, JobCandidateControllerGetCandidatesByJobResponses, JobCandidateControllerGetMyApplicationsData, JobCandidateControllerGetMyApplicationsErrors, JobCandidateControllerGetMyApplicationsResponses, JobCandidateControllerRemoveData, JobCandidateControllerRemoveErrors, JobCandidateControllerRemoveResponses, JobCandidateControllerUpdateStatusData, JobCandidateControllerUpdateStatusErrors, JobCandidateControllerUpdateStatusResponses, JobsControllerCreateData, JobsControllerCreateErrors, JobsControllerCreateResponses, JobsControllerFindAllData, JobsControllerFindAllErrors, JobsControllerFindAllResponses, JobsControllerFindOneData, JobsControllerFindOneErrors, JobsControllerFindOneResponses, JobsControllerRemoveData, JobsControllerRemoveErrors, JobsControllerRemoveResponses, JobsControllerUpdateData, JobsControllerUpdateErrors, JobsControllerUpdateResponses, UsersControllerCreateBulkData, UsersControllerCreateBulkErrors, UsersControllerCreateBulkResponses, UsersControllerFindOneData, UsersControllerFindOneErrors, UsersControllerFindOneResponses, UsersControllerGetAllUsersData, UsersControllerGetAllUsersErrors, UsersControllerGetAllUsersResponses, UsersControllerGetProfileData, UsersControllerGetProfileErrors, UsersControllerGetProfileResponses, UsersControllerRemoveData, UsersControllerRemoveErrors, UsersControllerRemoveResponses, UsersControllerSearchAllData, UsersControllerSearchAllErrors, UsersControllerSearchAllResponses, UsersControllerUpdateData, UsersControllerUpdateErrors, UsersControllerUpdateProfileData, UsersControllerUpdateProfileErrors, UsersControllerUpdateProfileResponses, UsersControllerUpdateResponses } from './types.gen';
+import type { AppControllerGetHelloData, AppControllerGetHelloErrors, AppControllerGetHelloResponses, AuthControllerRegisterData, AuthControllerRegisterErrors, AuthControllerRegisterResponses, AuthControllerSignInData, AuthControllerSignInErrors, AuthControllerSignInResponses, CandidatesControllerCreateData, CandidatesControllerCreateErrors, CandidatesControllerCreateResponses, CandidatesControllerFindAllData, CandidatesControllerFindAllErrors, CandidatesControllerFindAllResponses, CandidatesControllerGetCandidateByEmailData, CandidatesControllerGetCandidateByEmailErrors, CandidatesControllerGetCandidateByEmailResponses, CandidatesControllerRemoveData, CandidatesControllerRemoveErrors, CandidatesControllerRemoveResponses, CandidatesControllerUpdateData, CandidatesControllerUpdateErrors, CandidatesControllerUpdateResponses, JobCandidateControllerApplyJobsData, JobCandidateControllerApplyJobsErrors, JobCandidateControllerApplyJobsResponses, JobCandidateControllerFindAllData, JobCandidateControllerFindAllErrors, JobCandidateControllerFindAllResponses, JobCandidateControllerFindOneData, JobCandidateControllerFindOneErrors, JobCandidateControllerFindOneResponses, JobCandidateControllerGetCandidatesByJobData, JobCandidateControllerGetCandidatesByJobErrors, JobCandidateControllerGetCandidatesByJobResponses, JobCandidateControllerGetMyApplicationsData, JobCandidateControllerGetMyApplicationsErrors, JobCandidateControllerGetMyApplicationsResponses, JobCandidateControllerRemoveData, JobCandidateControllerRemoveErrors, JobCandidateControllerRemoveResponses, JobCandidateControllerUpdateStatusData, JobCandidateControllerUpdateStatusErrors, JobCandidateControllerUpdateStatusResponses, JobsControllerCreateData, JobsControllerCreateErrors, JobsControllerCreateResponses, JobsControllerFindAllData, JobsControllerFindAllErrors, JobsControllerFindAllResponses, JobsControllerFindOneData, JobsControllerFindOneErrors, JobsControllerFindOneResponses, JobsControllerRemoveData, JobsControllerRemoveErrors, JobsControllerRemoveResponses, JobsControllerUpdateData, JobsControllerUpdateErrors, JobsControllerUpdateResponses, NotificationsControllerCreateData, NotificationsControllerCreateErrors, NotificationsControllerCreateResponses, NotificationsControllerFindAllData, NotificationsControllerFindAllErrors, NotificationsControllerFindAllResponses, NotificationsControllerFindUnreadData, NotificationsControllerFindUnreadErrors, NotificationsControllerFindUnreadResponses, NotificationsControllerGetUnreadCountData, NotificationsControllerGetUnreadCountErrors, NotificationsControllerGetUnreadCountResponses, NotificationsControllerMarkAllAsReadData, NotificationsControllerMarkAllAsReadErrors, NotificationsControllerMarkAllAsReadResponses, NotificationsControllerMarkAsReadData, NotificationsControllerMarkAsReadErrors, NotificationsControllerMarkAsReadResponses, NotificationsControllerRemoveData, NotificationsControllerRemoveErrors, NotificationsControllerRemoveResponses, NotificationsControllerUpdateData, NotificationsControllerUpdateErrors, NotificationsControllerUpdateResponses, UsersControllerCreateBulkData, UsersControllerCreateBulkErrors, UsersControllerCreateBulkResponses, UsersControllerFindOneData, UsersControllerFindOneErrors, UsersControllerFindOneResponses, UsersControllerGetAllUsersData, UsersControllerGetAllUsersErrors, UsersControllerGetAllUsersResponses, UsersControllerGetProfileData, UsersControllerGetProfileErrors, UsersControllerGetProfileResponses, UsersControllerRemoveData, UsersControllerRemoveErrors, UsersControllerRemoveResponses, UsersControllerSearchAllData, UsersControllerSearchAllErrors, UsersControllerSearchAllResponses, UsersControllerUpdateData, UsersControllerUpdateErrors, UsersControllerUpdateProfileData, UsersControllerUpdateProfileErrors, UsersControllerUpdateProfileResponses, UsersControllerUpdateResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean> = Options2<TData, ThrowOnError> & {
     /**
@@ -216,4 +216,84 @@ export const jobCandidateControllerGetCandidatesByJob = <ThrowOnError extends bo
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/job-candidate/job/{jobId}',
     ...options
+});
+
+/**
+ * Get all notifications for current user
+ */
+export const notificationsControllerFindAll = <ThrowOnError extends boolean = false>(options?: Options<NotificationsControllerFindAllData, ThrowOnError>) => (options?.client ?? client).get<NotificationsControllerFindAllResponses, NotificationsControllerFindAllErrors, ThrowOnError>({
+    responseType: 'json',
+    url: '/notifications',
+    ...options
+});
+
+/**
+ * Create a notification (Admin only)
+ */
+export const notificationsControllerCreate = <ThrowOnError extends boolean = false>(options: Options<NotificationsControllerCreateData, ThrowOnError>) => (options.client ?? client).post<NotificationsControllerCreateResponses, NotificationsControllerCreateErrors, ThrowOnError>({
+    responseType: 'json',
+    url: '/notifications',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Get unread notifications for current user
+ */
+export const notificationsControllerFindUnread = <ThrowOnError extends boolean = false>(options?: Options<NotificationsControllerFindUnreadData, ThrowOnError>) => (options?.client ?? client).get<NotificationsControllerFindUnreadResponses, NotificationsControllerFindUnreadErrors, ThrowOnError>({
+    responseType: 'json',
+    url: '/notifications/unread',
+    ...options
+});
+
+/**
+ * Get unread notification count for current user
+ */
+export const notificationsControllerGetUnreadCount = <ThrowOnError extends boolean = false>(options?: Options<NotificationsControllerGetUnreadCountData, ThrowOnError>) => (options?.client ?? client).get<NotificationsControllerGetUnreadCountResponses, NotificationsControllerGetUnreadCountErrors, ThrowOnError>({
+    responseType: 'json',
+    url: '/notifications/unread/count',
+    ...options
+});
+
+/**
+ * Mark notification as read
+ */
+export const notificationsControllerMarkAsRead = <ThrowOnError extends boolean = false>(options: Options<NotificationsControllerMarkAsReadData, ThrowOnError>) => (options.client ?? client).patch<NotificationsControllerMarkAsReadResponses, NotificationsControllerMarkAsReadErrors, ThrowOnError>({
+    responseType: 'json',
+    url: '/notifications/{id}/read',
+    ...options
+});
+
+/**
+ * Mark all notifications as read
+ */
+export const notificationsControllerMarkAllAsRead = <ThrowOnError extends boolean = false>(options?: Options<NotificationsControllerMarkAllAsReadData, ThrowOnError>) => (options?.client ?? client).patch<NotificationsControllerMarkAllAsReadResponses, NotificationsControllerMarkAllAsReadErrors, ThrowOnError>({
+    responseType: 'json',
+    url: '/notifications/read-all',
+    ...options
+});
+
+/**
+ * Delete notification
+ */
+export const notificationsControllerRemove = <ThrowOnError extends boolean = false>(options: Options<NotificationsControllerRemoveData, ThrowOnError>) => (options.client ?? client).delete<NotificationsControllerRemoveResponses, NotificationsControllerRemoveErrors, ThrowOnError>({
+    responseType: 'json',
+    url: '/notifications/{id}',
+    ...options
+});
+
+/**
+ * Update notification
+ */
+export const notificationsControllerUpdate = <ThrowOnError extends boolean = false>(options: Options<NotificationsControllerUpdateData, ThrowOnError>) => (options.client ?? client).patch<NotificationsControllerUpdateResponses, NotificationsControllerUpdateErrors, ThrowOnError>({
+    responseType: 'json',
+    url: '/notifications/{id}',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
 });
