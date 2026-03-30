@@ -1,9 +1,23 @@
-import { useEffect, useState, useCallback, useRef } from 'react';
+import React, { createContext, useContext, useEffect, useState, useCallback, useRef, ReactNode } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { notificationsApi } from '../api/notifications.api';
 import type { NotificationItem } from '../types/notification';
 
-export const useNotifications = () => {
+interface NotificationContextType {
+  notifications: NotificationItem[];
+  unreadCount: number;
+  isConnected: boolean;
+  isLoading: boolean;
+  fetchNotifications: () => Promise<void>;
+  fetchUnreadNotifications: () => Promise<void>;
+  fetchUnreadCount: () => Promise<void>;
+  connect: () => void;
+  disconnect: () => void;
+}
+
+const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
+
+export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [isConnected, setIsConnected] = useState(false);
@@ -97,7 +111,7 @@ export const useNotifications = () => {
     };
   }, [connect, disconnect]);
 
-  return {
+  const value = {
     notifications,
     unreadCount,
     isConnected,
@@ -108,4 +122,18 @@ export const useNotifications = () => {
     connect,
     disconnect,
   };
+
+  return (
+    <NotificationContext.Provider value={value}>
+      {children}
+    </NotificationContext.Provider>
+  );
+};
+
+export const useNotifications = () => {
+  const context = useContext(NotificationContext);
+  if (context === undefined) {
+    throw new Error('useNotifications must be used within a NotificationProvider');
+  }
+  return context;
 };
