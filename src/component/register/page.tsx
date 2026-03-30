@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { UserRole } from "../../types/user";
 import { authControllerRegister, CreateUserDto } from "../../api-client";
+import { UserRole } from "../../types/user";
 
 export default function RegisterPage() {
   const navigate = useNavigate();
