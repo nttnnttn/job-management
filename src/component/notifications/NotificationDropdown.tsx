@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNotifications } from '../../hooks/useNotifications';
 import { NotificationItem } from './NotificationItem';
 import { notificationsApi } from '../../api/notifications.api';
@@ -9,28 +9,63 @@ interface NotificationDropdownProps {
 }
 
 export const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ onClose }) => {
-  const { notifications, refreshNotifications, refreshUnreadCount } = useNotifications();
+  const { notifications, isLoading, isConnected, fetchNotifications, fetchUnreadNotifications, fetchUnreadCount } = useNotifications();
   const [filter, setFilter] = useState<'all' | 'unread'>('all');
+
+  // Fetch notifications when dropdown opens
+  useEffect(() => {
+    if (filter === 'all') {
+      fetchNotifications();
+    } else {
+      fetchUnreadNotifications();
+    }
+  }, [filter, fetchNotifications, fetchUnreadNotifications]);
 
   const filteredNotifications =
     filter === 'unread'
       ? notifications.filter((n) => n.status === 'unread')
       : notifications;
 
-  const handleMarkAsRead = (id: string) => {
-    refreshNotifications();
-    refreshUnreadCount();
+  const handleMarkAsRead = async (id: string) => {
+    await notificationsApi.markAsRead(id);
+    // Refetch notifications list
+    if (filter === 'all') {
+      fetchNotifications();
+    } else {
+      fetchUnreadNotifications();
+    }
+    // Fallback: If socket disconnected, manually fetch unread count
+    if (!isConnected) {
+      fetchUnreadCount();
+    }
   };
 
-  const handleDelete = (id: string) => {
-    refreshNotifications();
-    refreshUnreadCount();
+  const handleDelete = async (id: string) => {
+    await notificationsApi.delete(id);
+    // Refetch notifications list
+    if (filter === 'all') {
+      fetchNotifications();
+    } else {
+      fetchUnreadNotifications();
+    }
+    // Fallback: If socket disconnected, manually fetch unread count
+    if (!isConnected) {
+      fetchUnreadCount();
+    }
   };
 
   const handleMarkAllAsRead = async () => {
     await notificationsApi.markAllAsRead();
-    refreshNotifications();
-    refreshUnreadCount();
+    // Refetch notifications list
+    if (filter === 'all') {
+      fetchNotifications();
+    } else {
+      fetchUnreadNotifications();
+    }
+    // Fallback: If socket disconnected, manually fetch unread count
+    if (!isConnected) {
+      fetchUnreadCount();
+    }
   };
 
   return (
@@ -63,7 +98,11 @@ export const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ onCl
       </div>
 
       <div className="notification-list">
-        {filteredNotifications.length === 0 ? (
+        {isLoading ? (
+          <div className="no-notifications">
+            <p>Loading...</p>
+          </div>
+        ) : filteredNotifications.length === 0 ? (
           <div className="no-notifications">
             <p>No notifications</p>
           </div>
