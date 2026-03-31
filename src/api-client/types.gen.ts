@@ -671,7 +671,7 @@ export type JobCandidateControllerGetMyApplicationsData = {
     body?: never;
     path?: never;
     query?: never;
-    url: '/job-candidate/me';
+    url: '/job-candidate/my-applications';
 };
 
 export type JobCandidateControllerGetMyApplicationsErrors = {

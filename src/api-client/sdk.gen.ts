@@ -186,7 +186,7 @@ export const jobCandidateControllerApplyJobs = <ThrowOnError extends boolean = f
 
 export const jobCandidateControllerGetMyApplications = <ThrowOnError extends boolean = false>(options?: Options<JobCandidateControllerGetMyApplicationsData, ThrowOnError>) => (options?.client ?? client).get<JobCandidateControllerGetMyApplicationsResponses, JobCandidateControllerGetMyApplicationsErrors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/job-candidate/me',
+    url: '/job-candidate/my-applications',
     ...options
 });
 
