@@ -4,11 +4,14 @@ import { useAuth } from "../../hooks/useAuth";
 
 import { updateProfile, UpdateProfilePayload } from "../../api/users.api";
 import { useProfile } from "../../hooks/users/useProfile";
+import { useUpdateProfile } from "../../hooks/users/useUpdateProfile";
+
 export default function ProfilePage() {
   const navigate = useNavigate();
   const auth = useAuth();
 
   const { data, isLoading, refetch } = useProfile();
+  const { mutateAsync } = useUpdateProfile();
 
   const [form, setForm] = useState<UpdateProfilePayload>({
     fullName: "",
@@ -38,7 +41,7 @@ export default function ProfilePage() {
     }
   }, [data]);
 
-  // 🔥 handle change
+  //handle change
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({
       ...form,
@@ -46,7 +49,7 @@ export default function ProfilePage() {
     });
   };
 
-  // 🔥 submit
+  // submit
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -57,7 +60,6 @@ export default function ProfilePage() {
       await updateProfile(form);
 
       setMessage("✅ Cập nhật thành công");
-      refetch(); // reload data
     } catch (err) {
       console.error(err);
       setMessage("❌ Cập nhật thất bại");

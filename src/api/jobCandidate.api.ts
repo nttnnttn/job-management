@@ -1,6 +1,7 @@
 import { 
   jobCandidateControllerApplyJobs,
   jobCandidateControllerGetCandidatesByJob,
+  jobCandidateControllerGetHistoryApplied,
   jobCandidateControllerGetMyApplications,
 } from "../api-client";
 
@@ -52,3 +53,20 @@ export const getMyApplications = async () => {
   });
   return res.data;
 };
+
+export const getMyApplicationHistory = async () => {
+  const token = localStorage.getItem("access_token");
+
+  const res = await jobCandidateControllerGetHistoryApplied({
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (res.error) {
+    throw res.error;
+  }
+
+  return res.data || [];
+};
+

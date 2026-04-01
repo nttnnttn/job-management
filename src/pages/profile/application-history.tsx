@@ -1,9 +1,8 @@
-import React from "react";
-import { useMyApplications } from "../../hooks/job-candidate/useMyApplications";
 import { useNavigate } from "react-router-dom";
+import { useMyApplicationHistory } from "../../hooks/job-candidate/useMyApplicationHistory";
 
 export default function ProfileApplicationsPage() {
-  const { data, isLoading } = useMyApplications();
+  const { data, isLoading } = useMyApplicationHistory();
   const navigate = useNavigate();
 
   if (isLoading) {
@@ -25,38 +24,50 @@ export default function ProfileApplicationsPage() {
       </h2>
 
       <div className="space-y-4">
-        {data.map((app: any) => (
+        {data.map((app: any) => {
+          const adapted = {
+          _id: app.application?.id,
+          status: app.application?.status,
+          createdAt: app.application?.appliedAt,
+          job: {
+            _id: app.job?.id,
+            title: app.job?.title,
+            company: app.job?.company,
+          },
+        };
+
+        return (
           <div
-            key={app._id}
+            key={adapted._id}
             className="p-4 border rounded-lg flex justify-between items-center hover:shadow transition"
           >
-            {/* LEFT */}
             <div>
               <h3 className="font-semibold text-lg">
-                {app.job?.title || "No title"}
+                {adapted.job?.title || "No title"}
               </h3>
 
               <p className="text-sm text-gray-600">
-                {app.job?.company}
+                {adapted.job?.company}
               </p>
 
               <p className="text-xs text-gray-400">
-                {new Date(app.createdAt).toLocaleString()}
+                {new Date(adapted.createdAt).toLocaleString()}
               </p>
 
-              {/* STATUS */}
               <p
                 className={`mt-1 text-sm font-medium
                   ${
-                    app.status === "accepted"
+                    adapted.status === "Approved"
                       ? "text-green-600"
-                      : app.status === "rejected"
+                      : adapted.status === "Rejected"
                       ? "text-red-600"
+                      : adapted.status === "Interview"
+                      ? "text-blue-600"
                       : "text-yellow-600"
                   }
                 `}
               >
-                {app.status || "pending"}
+                {adapted.status || "Pending"}
               </p>
             </div>
 
@@ -80,8 +91,10 @@ export default function ProfileApplicationsPage() {
               </button>
             </div>
           </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
 }
+ 

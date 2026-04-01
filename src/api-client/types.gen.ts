@@ -90,6 +90,22 @@ export type CreateJobCandidateDto = {
     status: 'applied' | 'interview' | 'approved' | 'rejected' | 'hired';
 };
 
+export type AppliedJobResponseDto = {
+    application: {
+        id: string;
+        status: string;
+        appliedAt: string;
+    };
+    job: {
+        id: string;
+        title: string;
+        company: string;
+        location: string;
+        salaryMin: number;
+        salaryMax: number;
+    };
+};
+
 export type UpdateJobCandidateDto = {
     job?: string;
     status?: 'applied' | 'interview' | 'approved' | 'rejected' | 'hired';
@@ -671,7 +687,7 @@ export type JobCandidateControllerGetMyApplicationsData = {
     body?: never;
     path?: never;
     query?: never;
-    url: '/job-candidate/my-applications';
+    url: '/job-candidate/me';
 };
 
 export type JobCandidateControllerGetMyApplicationsErrors = {
@@ -686,6 +702,26 @@ export type JobCandidateControllerGetMyApplicationsResponses = {
 };
 
 export type JobCandidateControllerGetMyApplicationsResponse = JobCandidateControllerGetMyApplicationsResponses[keyof JobCandidateControllerGetMyApplicationsResponses];
+
+export type JobCandidateControllerGetHistoryAppliedData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/job-candidate/my-applications';
+};
+
+export type JobCandidateControllerGetHistoryAppliedErrors = {
+    /**
+     * Internal server error
+     */
+    500: unknown;
+};
+
+export type JobCandidateControllerGetHistoryAppliedResponses = {
+    default: Array<AppliedJobResponseDto>;
+};
+
+export type JobCandidateControllerGetHistoryAppliedResponse = JobCandidateControllerGetHistoryAppliedResponses[keyof JobCandidateControllerGetHistoryAppliedResponses];
 
 export type JobCandidateControllerRemoveData = {
     body?: never;
@@ -776,12 +812,8 @@ export type JobCandidateControllerGetCandidatesByJobErrors = {
 };
 
 export type JobCandidateControllerGetCandidatesByJobResponses = {
-    default: Array<{
-        [key: string]: unknown;
-    }>;
+    default: unknown;
 };
-
-export type JobCandidateControllerGetCandidatesByJobResponse = JobCandidateControllerGetCandidatesByJobResponses[keyof JobCandidateControllerGetCandidatesByJobResponses];
 
 export type NotificationsControllerFindAllData = {
     body?: never;
