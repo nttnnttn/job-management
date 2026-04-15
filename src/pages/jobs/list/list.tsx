@@ -1,255 +1,257 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useJobList } from "../../../hooks/jobs/useJobList";
 import { useDeleteJob } from "../../../hooks/jobs/useDeleteJob";
 import { useNavigate } from "react-router-dom";
-import { jwtDecode, JwtPayload } from "jwt-decode";
 import { useApplyJob } from "../../../hooks/job-candidate/useApplyJob";
-
-import styles from "./list.module.css";
 import { useMyApplications } from "../../../hooks/job-candidate/useMyApplications";
+import { useAuth } from "../../../hooks/useAuth";
+import {
+  App as AntApp,
+  Button,
+  Card,
+  Input,
+  Modal,
+  Space,
+  Table,
+  Tag,
+  Typography,
+} from "antd";
+import type { ColumnsType } from "antd/es/table";
+import {
+  DeleteOutlined,
+  EditOutlined,
+  EyeOutlined,
+  PlusOutlined,
+  SendOutlined,
+  TeamOutlined,
+} from "@ant-design/icons";
 
-interface MyTokenPayload extends JwtPayload {
-  role?: string;
-}
+const { Title, Text } = Typography;
+const { Search } = Input;
 
 export default function JobListPage() {
   const [search, setSearch] = useState("");
-  const [message, setMessage] = useState("");
   const [appliedJobs, setAppliedJobs] = useState<string[]>([]);
-  const { data, isLoading } = useJobList({ search });
+  const { data, isLoading } = useJobList({ q: search });
   const deleteJob = useDeleteJob();
   const applyJob = useApplyJob();
   const navigate = useNavigate();
+  const auth = useAuth();
+  const { message } = AntApp.useApp();
   const { data: myApplications } = useMyApplications();
 
-  let role: string | undefined = undefined;
-
-  const accessToken = localStorage.getItem("access_token");
-
-  try {
-    if (accessToken != null) {
-      const decoded = jwtDecode<MyTokenPayload>(accessToken);
-      role = decoded.role;
-    }
-  } catch (error) {
-    console.error("Token không hợp lệ:", error);
-  }
-
+  const role = auth?.role;
   const canCreate = role === "recruiter";
-  const canEditDelete = role === "recruiter";
+  const canEditDelete = role === "recruiter" || role === "admin";
   const canApply = role === "candidate";
+  const isAdminMode = role === "admin";
 
-  const userId = localStorage.getItem("user_id");
-
-  //LOAD JOB ĐÃ APPLY 
   useEffect(() => {
-    console.log(myApplications)
-    if (!myApplications || !Array.isArray(myApplications)) return; 
-      const jobIds = myApplications;
-
-    setAppliedJobs(jobIds);
+    if (!myApplications || !Array.isArray(myApplications)) return;
+    setAppliedJobs(myApplications);
   }, [myApplications]);
 
   const handleDelete = (jobId: string) => {
-    if (!userId) {
-      setMessage("❌ You must login as candidate");
-      return;
-    }
+    if (!auth) return message.warning("Bạn cần đăng nhập");
 
-    const confirmDelete = window.confirm("Are you sure to delete?");
-
-    if (!confirmDelete) return;
-
-    deleteJob.mutate(jobId, {
-      onSuccess: () => {
-        setMessage("✅ Delete success!");
-      },
-      onError: () => {
-        setMessage("❌ Delete failed");
-      },
+    Modal.confirm({
+      title: "Bạn có chắc muốn xóa job này?",
+      okText: "Xóa",
+      okButtonProps: { danger: true },
+      cancelText: "Hủy",
+      onOk: () =>
+        deleteJob.mutate(jobId, {
+          onSuccess: () => message.success("Delete success!"),
+          onError: () => message.error("Delete failed"),
+        }),
     });
   };
 
   const handleApply = (jobId: string) => {
-    if (!userId) {
-      setMessage("❌ You must login as candidate");
-      return;
-    }
+    if (!auth) return message.warning("Bạn cần đăng nhập để apply");
+    if (auth.role !== "candidate")
+      return message.warning("Chỉ candidate mới được apply");
+    if (appliedJobs.includes(jobId))
+      return message.warning("You already applied this job");
 
-    // CHẶN APPLY TRÙNG FRONTEND
-    if (appliedJobs.includes(jobId)) {
-      setMessage("❌ You already applied this job");
-      return;
-    }
-
-    const confirmApply = window.confirm(
-    "Do you want to apply for this job?"
-    );
-
-    if (!confirmApply) return;
-
-    applyJob.mutate(
-      { jobId},
-      {
-        onSuccess: () => {
-          setMessage("✅ Apply success!");
-          setAppliedJobs((prev) => [...prev, jobId]);
-        },
-        onError: (err: any) => {
-          const msg = err?.message ||"You already applied this job";
-
-          setMessage(`❌ ${msg}`);
-        },
-      }
-    );
+    Modal.confirm({
+      title: "Apply job này?",
+      okText: "Apply",
+      cancelText: "Hủy",
+      onOk: () =>
+        applyJob.mutate(
+          { jobId },
+          {
+            onSuccess: () => {
+              message.success("Apply success!");
+              setAppliedJobs((prev) => [...prev, jobId]);
+            },
+            onError: (err: any) => {
+              const msg = err?.message || "You already applied this job";
+              message.error(msg);
+            },
+          },
+        ),
+    });
   };
 
+  const columns: ColumnsType<any> = useMemo(
+    () => [
+      { title: "Title", dataIndex: "title", key: "title" },
+      { title: "Company", dataIndex: "company", key: "company" },
+      {
+        title: "Location",
+        dataIndex: "location",
+        key: "location",
+        render: (value) => value || "N/A",
+      },
+      {
+        title: "Status",
+        dataIndex: "status",
+        key: "status",
+        render: (value) => (
+          <Tag color={value === "open" ? "green" : "red"}>
+            {String(value).toUpperCase()}
+          </Tag>
+        ),
+      },
+      {
+        title: "Salary",
+        key: "salary",
+        render: (_, job) => `${job.salaryMin || 0} - ${job.salaryMax || 0}`,
+      },
+      {
+        title: "Updated At",
+        dataIndex: "updatedAt",
+        key: "updatedAt",
+        render: (value) => new Date(value).toLocaleString(),
+      },
+      {
+        title: "Actions",
+        key: "actions",
+        fixed: "right",
+        width: 320,
+        render: (_, job) => {
+          const isApplied = job.isApplied || appliedJobs.includes(job._id);
+          return (
+            <Space wrap>
+              <Button
+                icon={<EyeOutlined />}
+                onClick={() => navigate(`/jobs/${job._id}`)}
+              >
+                Detail
+              </Button>
+
+              {canEditDelete && (
+                <>
+                  <Button
+                    icon={<EditOutlined />}
+                    onClick={() => navigate(`/jobs/update/${job._id}`)}
+                  >
+                    Edit
+                  </Button>
+                  <Button
+                    danger
+                    icon={<DeleteOutlined />}
+                    onClick={() => handleDelete(job._id)}
+                  >
+                    Delete
+                  </Button>
+                </>
+              )}
+
+              {role === "recruiter" && (
+                <Button
+                  icon={<TeamOutlined />}
+                  onClick={() => navigate(`/candidates/${job._id}`)}
+                >
+                  Candidates
+                </Button>
+              )}
+
+              {canApply && (
+                <Button
+                  type="primary"
+                  icon={<SendOutlined />}
+                  disabled={isApplied}
+                  onClick={() => handleApply(job._id)}
+                >
+                  {isApplied ? "Applied" : "Apply"}
+                </Button>
+              )}
+
+              {!auth && (
+                <Button
+                  type="primary"
+                  icon={<SendOutlined />}
+                  onClick={() => message.warning("Bạn cần đăng nhập để apply")}
+                >
+                  Apply
+                </Button>
+              )}
+            </Space>
+          );
+        },
+      },
+    ],
+    [appliedJobs, auth, canApply, canEditDelete, message, navigate, role],
+  );
+
   return (
-    <div className={styles.container}>
-      {/* Header */}
-      <div className={styles.header}>
-        <h1 className={styles.title}>Job List</h1>
-
-        {canCreate && (
-          <button
-            className={styles.newButton}
-            onClick={() => navigate("/jobs/create")}
-          >
-            + Create Job
-          </button>
-        )}
-      </div>
-
-      {/* Message UI */}
-      {message && (
-        <p
+    <div style={{ maxWidth: isAdminMode ? "100%" : 1280, margin: "40px auto" }}>
+      <Space direction="vertical" size={20} style={{ width: "100%" }}>
+        <div
           style={{
-            marginBottom: 10,
-            color: message.includes("success") ? "green" : "red",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            gap: 12,
+            flexWrap: "wrap",
           }}
         >
-          {message}
-        </p>
-      )}
+          <div>
+            <Title level={2} style={{ marginBottom: 6 }}>
+              {isAdminMode ? "Quản lý job" : "Job List"}
+            </Title>
+          </div>
+          {canCreate && (
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              size="large"
+              onClick={() => navigate("/jobs/create")}
+            >
+              Create Job
+            </Button>
+          )}
+        </div>
 
-      {/* Search */}
-      <input
-        placeholder="Search jobs..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        className="w-full p-3 border rounded mb-4"
-      />
-
-      {isLoading && <p>Loading jobs...</p>}
-
-      <div className={styles.tableWrapper}>
-        <table className={styles.table}>
-          <thead className={styles.thead}>
-            <tr>
-              <th className={styles.th}>Title</th>
-              <th className={styles.th}>Company</th>
-              <th className={styles.th}>Location</th>
-              <th className={styles.th}>Status</th>
-              <th className={styles.th}>Salary Min</th>
-              <th className={styles.th}>Salary Max</th>
-              <th className={styles.th}>Description</th>
-              <th className={styles.th}>Created At</th>
-              <th className={styles.th}>Updated At</th>
-
-              {(canEditDelete || canApply) && (
-                <th className={styles.th}>Actions</th>
-              )}
-            </tr>
-          </thead>
-
-          <tbody>
-            {data?.length === 0 && (
-              <tr>
-                <td colSpan={10} className={styles.noData}>
-                  No jobs found
-                </td>
-              </tr>
-            )}
-
-            {data?.map((job) => {
-              const isApplied = job.isApplied || appliedJobs.includes(job._id); 
-              return (
-                <tr key={job._id} className={styles.row}>
-                  <td className={styles.td}>{job.title}</td>
-                  <td className={styles.td}>{job.company}</td>
-                  <td className={styles.td}>{job.location}</td>
-                  <td className={styles.td}>{job.status}</td>
-
-                  <td className={styles.td}>
-                    {job.salaryMin ? `$${job.salaryMin}` : "N/A"}
-                  </td>
-
-                  <td className={styles.td}>
-                    {job.salaryMax ? `$${job.salaryMax}` : "N/A"}
-                  </td>
-
-                  <td className={styles.td}>{job.description}</td>
-
-                  <td className={styles.td}>
-                    {new Date(job.createdAt).toLocaleString()}
-                  </td>
-
-                  <td className={styles.td}>
-                    {new Date(job.updatedAt).toLocaleString()}
-                  </td>
-
-                  {(canEditDelete || canApply) && (
-                    <td className={styles.td}>
-                      <div className={styles.actions}>
-                        {canEditDelete && (
-                          <>
-                            <button
-                              className={styles.editBtn}
-                              onClick={() =>
-                                navigate(`/jobs/update/${job._id}`)
-                              }
-                            >
-                              ✏️ Edit
-                            </button>
-
-                            <button
-                              className={styles.deleteBtn}
-                              onClick={() => handleDelete(job._id)}
-                            >
-                              🗑 Delete
-                            </button>
-
-                            <button
-                              className={styles.viewBtn}
-                              onClick={() =>
-                                navigate(`/candidates/${job._id}`)
-                              }
-                            >
-                              👥 Candidates
-                            </button>
-                          </>
-                        )}
-
-                        {canApply && (
-                          <button
-                            className={styles.applyBtn}
-                            disabled={isApplied}
-                            onClick={() => handleApply(job._id)}
-                          >
-                            {isApplied 
-                              ? "✅ Applied"
-                              : "📩 Apply"}
-                          </button>
-                        )}
-                      </div>
-                    </td>
-                  )}
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+        <Card
+          bordered={false}
+          style={{
+            borderRadius: 16,
+            boxShadow: "0 10px 24px rgba(15, 23, 42, 0.08)",
+          }}
+        >
+          <Space direction="vertical" size={16} style={{ width: "100%" }}>
+            <Search
+              placeholder="Search jobs..."
+              allowClear
+              enterButton
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+            <Table
+              rowKey="_id"
+              columns={columns}
+              dataSource={Array.isArray(data) ? data : []}
+              loading={isLoading}
+              pagination={{ pageSize: 8 }}
+              scroll={{ x: 1200 }}
+            />
+          </Space>
+        </Card>
+      </Space>
     </div>
   );
 }

@@ -10,6 +10,12 @@ export type CreateUserDto = {
     role: 'candidate' | 'recruiter';
 };
 
+export type AdminCreateUserDto = {
+    email: string;
+    password: string;
+    role: 'candidate' | 'recruiter' | 'admin';
+};
+
 export type ObjectId = {
     [key: string]: unknown;
 };
@@ -37,29 +43,6 @@ export type UpdateUserDto = {
     email?: string;
     password?: string;
     role?: 'candidate' | 'recruiter';
-};
-
-export type LoginDto = {
-    password: string;
-    email: string;
-};
-
-export type LoginReponseDto = {
-    access_token: string;
-};
-
-export type CreateCandidateDto = {
-    email: string;
-    fullName: string;
-    skills: Array<string>;
-    status: 'active' | 'inactive';
-};
-
-export type UpdateCandidateDto = {
-    email?: string;
-    fullName?: string;
-    skills?: Array<string>;
-    status?: 'active' | 'inactive';
 };
 
 export type CreateJobDto = {
@@ -106,9 +89,9 @@ export type AppliedJobResponseDto = {
     };
 };
 
-export type UpdateJobCandidateDto = {
-    job?: string;
+export type RecruiterUpdateJobCandidateDto = {
     status?: 'applied' | 'interview' | 'approved' | 'rejected' | 'hired';
+    job?: string;
 };
 
 export type CreateNotificationDto = {
@@ -163,6 +146,29 @@ export type UpdateNotificationDto = {
     status?: 'unread' | 'read';
 };
 
+export type LoginDto = {
+    password: string;
+    email: string;
+};
+
+export type LoginReponseDto = {
+    access_token: string;
+};
+
+export type CreateCandidateDto = {
+    email: string;
+    fullName: string;
+    skills: Array<string>;
+    status: 'active' | 'inactive';
+};
+
+export type UpdateCandidateDto = {
+    email?: string;
+    fullName?: string;
+    skills?: Array<string>;
+    status?: 'active' | 'inactive';
+};
+
 export type AppControllerGetHelloData = {
     body?: never;
     path?: never;
@@ -209,6 +215,48 @@ export type UsersControllerCreateBulkResponses = {
 
 export type UsersControllerCreateBulkResponse = UsersControllerCreateBulkResponses[keyof UsersControllerCreateBulkResponses];
 
+export type UsersControllerGetAllUsersData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/users';
+};
+
+export type UsersControllerGetAllUsersErrors = {
+    /**
+     * Internal server error
+     */
+    500: unknown;
+};
+
+export type UsersControllerGetAllUsersResponses = {
+    default: Array<UserDto>;
+};
+
+export type UsersControllerGetAllUsersResponse = UsersControllerGetAllUsersResponses[keyof UsersControllerGetAllUsersResponses];
+
+export type UsersControllerCreateByAdminData = {
+    body: AdminCreateUserDto;
+    path?: never;
+    query?: never;
+    url: '/users';
+};
+
+export type UsersControllerCreateByAdminErrors = {
+    /**
+     * Internal server error
+     */
+    500: unknown;
+};
+
+export type UsersControllerCreateByAdminResponses = {
+    default: {
+        [key: string]: unknown;
+    };
+};
+
+export type UsersControllerCreateByAdminResponse = UsersControllerCreateByAdminResponses[keyof UsersControllerCreateByAdminResponses];
+
 export type UsersControllerSearchAllData = {
     body?: never;
     path?: never;
@@ -230,6 +278,24 @@ export type UsersControllerSearchAllResponses = {
 
 export type UsersControllerSearchAllResponse = UsersControllerSearchAllResponses[keyof UsersControllerSearchAllResponses];
 
+export type UsersControllerGetAdminStatsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/users/admin/stats';
+};
+
+export type UsersControllerGetAdminStatsErrors = {
+    /**
+     * Internal server error
+     */
+    500: unknown;
+};
+
+export type UsersControllerGetAdminStatsResponses = {
+    default: unknown;
+};
+
 export type UsersControllerRemoveData = {
     body?: never;
     path: {
@@ -247,7 +313,9 @@ export type UsersControllerRemoveErrors = {
 };
 
 export type UsersControllerRemoveResponses = {
-    default: string;
+    default: {
+        [key: string]: unknown;
+    };
 };
 
 export type UsersControllerRemoveResponse = UsersControllerRemoveResponses[keyof UsersControllerRemoveResponses];
@@ -293,30 +361,12 @@ export type UsersControllerUpdateErrors = {
 };
 
 export type UsersControllerUpdateResponses = {
-    default: string;
+    default: {
+        [key: string]: unknown;
+    };
 };
 
 export type UsersControllerUpdateResponse = UsersControllerUpdateResponses[keyof UsersControllerUpdateResponses];
-
-export type UsersControllerGetAllUsersData = {
-    body?: never;
-    path?: never;
-    query?: never;
-    url: '/users';
-};
-
-export type UsersControllerGetAllUsersErrors = {
-    /**
-     * Internal server error
-     */
-    500: unknown;
-};
-
-export type UsersControllerGetAllUsersResponses = {
-    default: Array<UserDto>;
-};
-
-export type UsersControllerGetAllUsersResponse = UsersControllerGetAllUsersResponses[keyof UsersControllerGetAllUsersResponses];
 
 export type UsersControllerGetProfileData = {
     body?: never;
@@ -361,168 +411,6 @@ export type UsersControllerUpdateProfileResponses = {
 };
 
 export type UsersControllerUpdateProfileResponse = UsersControllerUpdateProfileResponses[keyof UsersControllerUpdateProfileResponses];
-
-export type AuthControllerSignInData = {
-    body: LoginDto;
-    path?: never;
-    query?: never;
-    url: '/users/login';
-};
-
-export type AuthControllerSignInErrors = {
-    /**
-     * Internal server error
-     */
-    500: unknown;
-};
-
-export type AuthControllerSignInResponses = {
-    default: LoginReponseDto;
-};
-
-export type AuthControllerSignInResponse = AuthControllerSignInResponses[keyof AuthControllerSignInResponses];
-
-export type AuthControllerRegisterData = {
-    body: CreateUserDto;
-    path?: never;
-    query?: never;
-    url: '/users/register';
-};
-
-export type AuthControllerRegisterErrors = {
-    /**
-     * Forbidden.
-     */
-    403: unknown;
-    /**
-     * Internal server error
-     */
-    500: unknown;
-    default: string;
-};
-
-export type AuthControllerRegisterError = AuthControllerRegisterErrors[keyof AuthControllerRegisterErrors];
-
-export type AuthControllerRegisterResponses = {
-    /**
-     * The record has been successfully created.
-     */
-    201: unknown;
-};
-
-export type CandidatesControllerFindAllData = {
-    body?: never;
-    path?: never;
-    query?: never;
-    url: '/candidates';
-};
-
-export type CandidatesControllerFindAllErrors = {
-    /**
-     * Internal server error
-     */
-    500: unknown;
-};
-
-export type CandidatesControllerFindAllResponses = {
-    default: string;
-};
-
-export type CandidatesControllerFindAllResponse = CandidatesControllerFindAllResponses[keyof CandidatesControllerFindAllResponses];
-
-export type CandidatesControllerCreateData = {
-    body: CreateCandidateDto;
-    path?: never;
-    query?: never;
-    url: '/candidates';
-};
-
-export type CandidatesControllerCreateErrors = {
-    /**
-     * Internal server error
-     */
-    500: unknown;
-};
-
-export type CandidatesControllerCreateResponses = {
-    default: {
-        [key: string]: unknown;
-    };
-};
-
-export type CandidatesControllerCreateResponse = CandidatesControllerCreateResponses[keyof CandidatesControllerCreateResponses];
-
-export type CandidatesControllerRemoveData = {
-    body?: never;
-    path: {
-        id: string;
-    };
-    query?: never;
-    url: '/candidates/{id}';
-};
-
-export type CandidatesControllerRemoveErrors = {
-    /**
-     * Internal server error
-     */
-    500: unknown;
-};
-
-export type CandidatesControllerRemoveResponses = {
-    default: {
-        [key: string]: unknown;
-    };
-};
-
-export type CandidatesControllerRemoveResponse = CandidatesControllerRemoveResponses[keyof CandidatesControllerRemoveResponses];
-
-export type CandidatesControllerUpdateData = {
-    body: UpdateCandidateDto;
-    path: {
-        id: string;
-    };
-    query?: never;
-    url: '/candidates/{id}';
-};
-
-export type CandidatesControllerUpdateErrors = {
-    /**
-     * Internal server error
-     */
-    500: unknown;
-};
-
-export type CandidatesControllerUpdateResponses = {
-    default: {
-        [key: string]: unknown;
-    };
-};
-
-export type CandidatesControllerUpdateResponse = CandidatesControllerUpdateResponses[keyof CandidatesControllerUpdateResponses];
-
-export type CandidatesControllerGetCandidateByEmailData = {
-    body?: never;
-    path: {
-        email: string;
-    };
-    query?: never;
-    url: '/candidates/email';
-};
-
-export type CandidatesControllerGetCandidateByEmailErrors = {
-    /**
-     * Internal server error
-     */
-    500: unknown;
-};
-
-export type CandidatesControllerGetCandidateByEmailResponses = {
-    default: {
-        [key: string]: unknown;
-    };
-};
-
-export type CandidatesControllerGetCandidateByEmailResponse = CandidatesControllerGetCandidateByEmailResponses[keyof CandidatesControllerGetCandidateByEmailResponses];
 
 export type JobsControllerFindAllData = {
     body?: never;
@@ -723,6 +611,44 @@ export type JobCandidateControllerGetHistoryAppliedResponses = {
 
 export type JobCandidateControllerGetHistoryAppliedResponse = JobCandidateControllerGetHistoryAppliedResponses[keyof JobCandidateControllerGetHistoryAppliedResponses];
 
+export type JobCandidateControllerGetAdminApplicationOverviewData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/job-candidate/admin/overview';
+};
+
+export type JobCandidateControllerGetAdminApplicationOverviewErrors = {
+    /**
+     * Internal server error
+     */
+    500: unknown;
+};
+
+export type JobCandidateControllerGetAdminApplicationOverviewResponses = {
+    default: unknown;
+};
+
+export type JobCandidateControllerGetCandidatesByJobData = {
+    body?: never;
+    path: {
+        jobId: string;
+    };
+    query?: never;
+    url: '/job-candidate/job/{jobId}';
+};
+
+export type JobCandidateControllerGetCandidatesByJobErrors = {
+    /**
+     * Internal server error
+     */
+    500: unknown;
+};
+
+export type JobCandidateControllerGetCandidatesByJobResponses = {
+    default: unknown;
+};
+
 export type JobCandidateControllerRemoveData = {
     body?: never;
     path: {
@@ -772,7 +698,7 @@ export type JobCandidateControllerFindOneResponses = {
 export type JobCandidateControllerFindOneResponse = JobCandidateControllerFindOneResponses[keyof JobCandidateControllerFindOneResponses];
 
 export type JobCandidateControllerUpdateStatusData = {
-    body: UpdateJobCandidateDto;
+    body: RecruiterUpdateJobCandidateDto;
     path: {
         id: string;
     };
@@ -794,26 +720,6 @@ export type JobCandidateControllerUpdateStatusResponses = {
 };
 
 export type JobCandidateControllerUpdateStatusResponse = JobCandidateControllerUpdateStatusResponses[keyof JobCandidateControllerUpdateStatusResponses];
-
-export type JobCandidateControllerGetCandidatesByJobData = {
-    body?: never;
-    path: {
-        jobId: string;
-    };
-    query?: never;
-    url: '/job-candidate/job/{jobId}';
-};
-
-export type JobCandidateControllerGetCandidatesByJobErrors = {
-    /**
-     * Internal server error
-     */
-    500: unknown;
-};
-
-export type JobCandidateControllerGetCandidatesByJobResponses = {
-    default: unknown;
-};
 
 export type NotificationsControllerFindAllData = {
     body?: never;
@@ -1004,3 +910,165 @@ export type NotificationsControllerUpdateResponses = {
 };
 
 export type NotificationsControllerUpdateResponse = NotificationsControllerUpdateResponses[keyof NotificationsControllerUpdateResponses];
+
+export type AuthControllerSignInData = {
+    body: LoginDto;
+    path?: never;
+    query?: never;
+    url: '/users/login';
+};
+
+export type AuthControllerSignInErrors = {
+    /**
+     * Internal server error
+     */
+    500: unknown;
+};
+
+export type AuthControllerSignInResponses = {
+    default: LoginReponseDto;
+};
+
+export type AuthControllerSignInResponse = AuthControllerSignInResponses[keyof AuthControllerSignInResponses];
+
+export type AuthControllerRegisterData = {
+    body: CreateUserDto;
+    path?: never;
+    query?: never;
+    url: '/users/register';
+};
+
+export type AuthControllerRegisterErrors = {
+    /**
+     * Forbidden.
+     */
+    403: unknown;
+    /**
+     * Internal server error
+     */
+    500: unknown;
+    default: string;
+};
+
+export type AuthControllerRegisterError = AuthControllerRegisterErrors[keyof AuthControllerRegisterErrors];
+
+export type AuthControllerRegisterResponses = {
+    /**
+     * The record has been successfully created.
+     */
+    201: unknown;
+};
+
+export type CandidatesControllerFindAllData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/candidates';
+};
+
+export type CandidatesControllerFindAllErrors = {
+    /**
+     * Internal server error
+     */
+    500: unknown;
+};
+
+export type CandidatesControllerFindAllResponses = {
+    default: string;
+};
+
+export type CandidatesControllerFindAllResponse = CandidatesControllerFindAllResponses[keyof CandidatesControllerFindAllResponses];
+
+export type CandidatesControllerCreateData = {
+    body: CreateCandidateDto;
+    path?: never;
+    query?: never;
+    url: '/candidates';
+};
+
+export type CandidatesControllerCreateErrors = {
+    /**
+     * Internal server error
+     */
+    500: unknown;
+};
+
+export type CandidatesControllerCreateResponses = {
+    default: {
+        [key: string]: unknown;
+    };
+};
+
+export type CandidatesControllerCreateResponse = CandidatesControllerCreateResponses[keyof CandidatesControllerCreateResponses];
+
+export type CandidatesControllerRemoveData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/candidates/{id}';
+};
+
+export type CandidatesControllerRemoveErrors = {
+    /**
+     * Internal server error
+     */
+    500: unknown;
+};
+
+export type CandidatesControllerRemoveResponses = {
+    default: {
+        [key: string]: unknown;
+    };
+};
+
+export type CandidatesControllerRemoveResponse = CandidatesControllerRemoveResponses[keyof CandidatesControllerRemoveResponses];
+
+export type CandidatesControllerUpdateData = {
+    body: UpdateCandidateDto;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/candidates/{id}';
+};
+
+export type CandidatesControllerUpdateErrors = {
+    /**
+     * Internal server error
+     */
+    500: unknown;
+};
+
+export type CandidatesControllerUpdateResponses = {
+    default: {
+        [key: string]: unknown;
+    };
+};
+
+export type CandidatesControllerUpdateResponse = CandidatesControllerUpdateResponses[keyof CandidatesControllerUpdateResponses];
+
+export type CandidatesControllerGetCandidateByEmailData = {
+    body?: never;
+    path: {
+        email: string;
+    };
+    query?: never;
+    url: '/candidates/email';
+};
+
+export type CandidatesControllerGetCandidateByEmailErrors = {
+    /**
+     * Internal server error
+     */
+    500: unknown;
+};
+
+export type CandidatesControllerGetCandidateByEmailResponses = {
+    default: {
+        [key: string]: unknown;
+    };
+};
+
+export type CandidatesControllerGetCandidateByEmailResponse = CandidatesControllerGetCandidateByEmailResponses[keyof CandidatesControllerGetCandidateByEmailResponses];

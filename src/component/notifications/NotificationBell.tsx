@@ -6,6 +6,9 @@ import { useNotifications } from '../../contexts/NotificationContext';
 export const NotificationBell: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { unreadCount, isConnected } = useNotifications();
+  const token = localStorage.getItem('access_token');
+
+  if (!token) return null;
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Close dropdown when clicking outside
