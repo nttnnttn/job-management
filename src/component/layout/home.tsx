@@ -1,48 +1,47 @@
-import React, { useEffect } from "react";
-import { Outlet, useLocation, useNavigate } from "react-router-dom";
-import Navbar from "./navbar";
-import { useAuth } from "../../hooks/useAuth";
-import Sidebar from "./sidebar";
+import React from 'react';
+import { Outlet, useLocation, useNavigate } from 'react-router-dom';
+import Navbar from './navbar';
+import { useAuth } from '../../hooks/useAuth';
+import Sidebar from './sidebar';
+
+const PUBLIC_PATHS = ['/jobs'];
 
 export default function HomeLayout() {
   const navigate = useNavigate();
   const location = useLocation();
   const user = useAuth();
 
-  // 🔥 check login
-  useEffect(() => {
-    if (user === null) return;
+  const isPublicRoute = PUBLIC_PATHS.some(
+    (path) => location.pathname === path || location.pathname.startsWith(`${path}/`),
+  );
 
-    if (!user) {
-      navigate("/login", { replace: true });
+  React.useEffect(() => {
+    if (!user && !isPublicRoute) {
+      navigate('/login', { replace: true });
     }
-  }, [user, navigate]);
+  }, [user, isPublicRoute, navigate]);
 
-  // 🔥 chỉ show sidebar khi vào profile
-  const showSidebar = location.pathname.startsWith("/profile");
+  const isAdminSidebarRoute =
+    location.pathname.startsWith('/admin') ||
+    location.pathname.startsWith('/users') ||
+    (location.pathname.startsWith('/jobs') && user?.role?.toLowerCase() === 'admin');
 
-  // chưa load xong user → không render
-  if (user === null) return null;
+  const showSidebar = !!user && (location.pathname.startsWith('/profile') || isAdminSidebarRoute);
 
-  // chưa login → không render 
-  if (!user) return null;
+  if (!user && !isPublicRoute) return null;
 
   return (
     <div>
-      {/* Navbar luôn ở trên */}
       <Navbar />
-
-      <div style={{ display: "flex" }}>
-        {/* ✅ Sidebar chỉ hiện khi cần */}
+      <div style={{ display: 'flex' }}>
         {showSidebar && <Sidebar />}
-
-        {/* ✅ Content */}
         <div
           style={{
-            marginTop: 70, // tránh bị navbar che
-            marginLeft: showSidebar ? 250 : 0, // có sidebar thì đẩy content
+            marginTop: 70,
+            marginLeft: showSidebar ? 280 : 0,
             padding: 20,
-            width: "100%",
+            width: '100%',
+            transition: 'margin-left 0.2s ease',
           }}
         >
           <Outlet />

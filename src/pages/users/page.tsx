@@ -1,18 +1,49 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-
+import {
+  App as AntApp,
+  Button,
+  Card,
+  Form,
+  Input,
+  Modal,
+  Select,
+  Space,
+  Table,
+  Tag,
+  Typography,
+} from "antd";
+import type { ColumnsType } from "antd/es/table";
+import { DeleteOutlined, PlusOutlined } from "@ant-design/icons";
 import { useAuth } from "../../hooks/useAuth";
 import { UserDto, usersControllerGetAllUsers } from "../../api-client";
+import { adminApi } from "../../api/admin.api";
+
+const { Title, Text } = Typography;
 
 export default function UsersPage() {
   const navigate = useNavigate();
   const auth = useAuth();
-
+  const { message } = AntApp.useApp();
   const [users, setUsers] = useState<UserDto[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [openCreateModal, setOpenCreateModal] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [form] = Form.useForm();
 
-  // 🔥 check auth + role
+  const fetchUsers = async () => {
+    try {
+      setLoading(true);
+      const res = await usersControllerGetAllUsers({});
+      setUsers(Array.isArray(res.data) ? (res.data as UserDto[]) : []);
+    } catch (err) {
+      console.error(err);
+      message.error("Không thể tải danh sách người dùng");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (!auth) {
       navigate("/login", { replace: true });
@@ -23,83 +54,198 @@ export default function UsersPage() {
       navigate("/jobs", { replace: true });
       return;
     }
-  }, [auth?.role]); // ✅ chỉ phụ thuộc role
-
-  // 🔥 fetch users (chỉ chạy 1 lần khi role hợp lệ)
-  useEffect(() => {
-    if (auth?.role !== "admin") return;
-
-    const fetchUsers = async () => {
-      try {
-        setLoading(true);
-
-        const res = await usersControllerGetAllUsers({});
-
-        if (res.data && Array.isArray(res.data)) {
-          setUsers(res.data as UserDto[]);
-        } else {
-          setUsers([]);
-        }
-      } catch (err) {
-        console.error(err);
-        setError("Không thể tải danh sách người dùng");
-      } finally {
-        setLoading(false);
-      }
-    };
 
     fetchUsers();
-  }, [auth?.role]); // ✅ không bị loop
+  }, [auth?.role, navigate]);
 
-  // 🔥 tránh render khi chưa auth
-  if (!auth) return null;
+  const handleCreate = async () => {
+    try {
+      const values = await form.validateFields();
+      setSubmitting(true);
+      await adminApi.createUser(values);
+      message.success("Tạo user thành công");
+      setOpenCreateModal(false);
+      form.resetFields();
+      fetchUsers();
+    } catch (error: any) {
+      if (error?.errorFields) return;
+      message.error(error?.message || "Tạo user thất bại");
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
-  if (loading) {
-    return <p style={{ textAlign: "center" }}>Đang tải danh sách...</p>;
-  }
+  const handleDelete = async (id: string) => {
+    try {
+      await adminApi.deleteUser(id);
+      message.success("Xóa user thành công");
+      fetchUsers();
+    } catch (error: any) {
+      message.error(error?.message || "Xóa user thất bại");
+    }
+  };
 
-  if (error) {
-    return <p style={{ color: "red", textAlign: "center" }}>{error}</p>;
-  }
+  if (!auth || auth.role !== "admin") return null;
+
+  const columns: ColumnsType<UserDto> = [
+    {
+      title: "Email",
+      dataIndex: "email",
+      render: (value) => <Text copyable>{value}</Text>,
+    },
+    {
+      title: "Role",
+      dataIndex: "role",
+      render: (value) => (
+        <Tag
+          color={
+            value === "admin"
+              ? "purple"
+              : value === "recruiter"
+                ? "gold"
+                : "blue"
+          }
+        >
+          {String(value).toUpperCase()}
+        </Tag>
+      ),
+    },
+    {
+      title: "Active",
+      dataIndex: "active",
+      render: (value) => (
+        <Tag color={value ? "green" : "red"}>
+          {value ? "ACTIVE" : "INACTIVE"}
+        </Tag>
+      ),
+    },
+    {
+      title: "Ngày tạo",
+      dataIndex: "createdAt",
+      render: (value) => new Date(value).toLocaleString(),
+    },
+    {
+      title: "Cập nhật",
+      dataIndex: "updatedAt",
+      render: (value) => new Date(value).toLocaleString(),
+    },
+    {
+      title: "Action",
+      key: "action",
+      width: 110,
+      render: (_, record) => (
+        <Button
+          danger
+          icon={<DeleteOutlined />}
+          onClick={() =>
+            Modal.confirm({
+              title: "Xóa user này?",
+              content: record.email,
+              okText: "Xóa",
+              okButtonProps: { danger: true },
+              cancelText: "Hủy",
+              onOk: () => handleDelete(String(record._id)),
+            })
+          }
+        >
+          Delete
+        </Button>
+      ),
+    },
+  ];
 
   return (
-    <div style={{ maxWidth: 900, margin: "50px auto", fontFamily: "Arial" }}>
-      <h2 style={{ marginBottom: 20 }}>👥 Danh sách người dùng</h2>
-
-      {users.length === 0 ? (
-        <p>Không có tài khoản nào</p>
-      ) : (
-        <table
-          border={1}
-          cellPadding={10}
+    <div style={{ maxWidth: "100%", margin: "50px auto" }}>
+      <Space direction="vertical" size={20} style={{ width: "100%" }}>
+        <div
           style={{
-            width: "100%",
-            borderCollapse: "collapse",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
           }}
         >
-          <thead>
-            <tr style={{ background: "#f2f2f2" }}>
-              <th>Email</th>
-              <th>Role</th>
-              <th>Active</th>
-              <th>Ngày tạo</th>
-              <th>Cập nhật</th>
-            </tr>
-          </thead>
+          <div>
+            <Title level={2} style={{ marginBottom: 6 }}>
+              Quản lý người dùng
+            </Title>
+          </div>
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            size="large"
+            onClick={() => setOpenCreateModal(true)}
+          >
+            Tạo user
+          </Button>
+        </div>
 
-          <tbody>
-            {users.map((u) => (
-              <tr key={String(u._id)}>
-                <td>{u.email}</td>
-                <td>{u.role}</td>
-                <td>{u.active ? "✅" : "❌"}</td>
-                <td>{new Date(u.createdAt).toLocaleString()}</td>
-                <td>{new Date(u.updatedAt).toLocaleString()}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+        <Card
+          bordered={false}
+          style={{
+            borderRadius: 16,
+            boxShadow: "0 10px 24px rgba(15, 23, 42, 0.08)",
+          }}
+        >
+          <Table
+            rowKey={(record) => String(record._id)}
+            columns={columns}
+            dataSource={users}
+            loading={loading}
+            pagination={{ pageSize: 8 }}
+            scroll={{ x: 900 }}
+          />
+        </Card>
+      </Space>
+
+      <Modal
+        title="Tạo user mới"
+        open={openCreateModal}
+        onOk={handleCreate}
+        onCancel={() => setOpenCreateModal(false)}
+        confirmLoading={submitting}
+        okText="Tạo"
+        cancelText="Hủy"
+      >
+        <Form
+          form={form}
+          layout="vertical"
+          initialValues={{ role: "candidate" }}
+        >
+          <Form.Item
+            name="email"
+            label="Email"
+            rules={[
+              { required: true, message: "Nhập email" },
+              { type: "email", message: "Email không hợp lệ" },
+            ]}
+          >
+            <Input placeholder="example@gmail.com" />
+          </Form.Item>
+          <Form.Item
+            name="password"
+            label="Password"
+            rules={[
+              { required: true, message: "Nhập password" },
+              { min: 6, message: "Ít nhất 6 ký tự" },
+            ]}
+          >
+            <Input.Password placeholder="••••••••" />
+          </Form.Item>
+          <Form.Item
+            name="role"
+            label="Role"
+            rules={[{ required: true, message: "Chọn role" }]}
+          >
+            <Select
+              options={[
+                { value: "candidate", label: "Candidate" },
+                { value: "recruiter", label: "Recruiter" },
+                { value: "admin", label: "Admin" },
+              ]}
+            />
+          </Form.Item>
+        </Form>
+      </Modal>
     </div>
   );
 }
