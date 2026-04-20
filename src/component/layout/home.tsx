@@ -3,6 +3,7 @@ import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import Navbar from './navbar';
 import { useAuth } from '../../hooks/useAuth';
 import Sidebar from './sidebar';
+import { Box } from "@mui/material";
 
 const PUBLIC_PATHS = ['/jobs'];
 
@@ -30,23 +31,31 @@ export default function HomeLayout() {
 
   if (!user && !isPublicRoute) return null;
 
-  return (
-    <div>
-      <Navbar />
-      <div style={{ display: 'flex' }}>
-        {showSidebar && <Sidebar />}
-        <div
-          style={{
-            marginTop: 70,
-            marginLeft: showSidebar ? 280 : 0,
-            padding: 20,
-            width: '100%',
-            transition: 'margin-left 0.2s ease',
-          }}
-        >
-          <Outlet />
-        </div>
-      </div>
-    </div>
-  );
+return (
+  <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+    <Navbar />
+    
+    <Box sx={{ display: 'flex', flexGrow: 1 }}>
+      {showSidebar && (
+        <Box sx={{ width: 280, flexShrink: 0 }}>
+          <Sidebar />
+        </Box>
+      )}
+      
+      <Box
+        component="main"
+        sx={{
+          flexGrow: 1,
+          marginTop: 8, // Adjust based on your Navbar height
+          padding: 3,
+          width: '100%',
+          // Remove marginLeft: showSidebar ? '280px' : 0, 
+        }}
+      >
+        <Outlet />
+      </Box>
+    </Box>
+  </Box>
+);
+
 }
