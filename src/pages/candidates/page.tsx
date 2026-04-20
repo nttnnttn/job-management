@@ -1,35 +1,35 @@
 import { useParams, useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { 
+  Box, 
+  Container, 
+  Typography, 
+  Card, 
+  Stack, 
+  Button, 
+  Alert,
+  CircularProgress 
+} from "@mui/material";
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+
 import { useAuth } from "../../hooks/useAuth";
 import { useCandidatesByJob } from "../../hooks/job-candidate/useCandidatesByJob";
 import { updateApplicationStatus } from "../../api/jobCandidate.api";
-import {
-  App as AntApp,
-  Button,
-  Card,
-  Space,
-  Table,
-  Tag,
-  Typography,
-} from "antd";
-import type { ColumnsType } from "antd/es/table";
-import {
-  ArrowLeftOutlined,
-  CheckCircleOutlined,
-  CloseCircleOutlined,
-} from "@ant-design/icons";
-import { useState } from "react";
-
-const { Title, Text } = Typography;
+import CandidateTable from "../../component/table/CandidateTable";
 
 export default function CandidatesPage() {
   const { jobId } = useParams();
   const navigate = useNavigate();
   const auth = useAuth();
-  const { message } = AntApp.useApp();
   const [loadingId, setLoadingId] = useState<string | null>(null);
 
+  // Use simple alerts or a custom Snackbar hook if you have one
   if (auth?.role !== "recruiter") {
-    return <p style={{ textAlign: "center", marginTop: 80 }}>Access denied</p>;
+    return (
+      <Typography sx={{ textAlign: "center", mt: 10 }}>
+        Access denied
+      </Typography>
+    );
   }
 
   const { data, isLoading, error, refetch } = useCandidatesByJob(jobId!);
@@ -43,120 +43,58 @@ export default function CandidatesPage() {
       setLoadingId(applicationId + status);
       await updateApplicationStatus(applicationId, status);
       await refetch();
-      message.success(
-        status === "approved" ? "Đã duyệt ứng viên" : "Đã từ chối ứng viên",
-      );
-    } catch (error: any) {
-      message.error(error?.message || "Cập nhật thất bại");
+      // Replace with your snackbar/toast logic
+      console.log(status === "approved" ? "Đã duyệt ứng viên" : "Đã từ chối ứng viên");
+    } catch (err: any) {
+      console.error(err?.message || "Cập nhật thất bại");
     } finally {
       setLoadingId(null);
     }
   };
 
-  const columns: ColumnsType<any> = [
-    {
-      title: "Full name",
-      dataIndex: ["candidate", "fullName"],
-      render: (_v, r) => r.candidate?.fullName || "N/A",
-    },
-    { title: "Email", dataIndex: ["candidate", "email"] },
-    {
-      title: "Skills",
-      dataIndex: ["candidate", "skills"],
-      render: (skills) =>
-        Array.isArray(skills) && skills.length > 0
-          ? skills.map((skill: string) => <Tag key={skill}>{skill}</Tag>)
-          : "N/A",
-    },
-    {
-      title: "Status",
-      dataIndex: "status",
-      render: (value) => (
-        <Tag
-          color={
-            value === "approved"
-              ? "green"
-              : value === "rejected"
-                ? "red"
-                : "blue"
-          }
-        >
-          {String(value).toUpperCase()}
-        </Tag>
-      ),
-    },
-    {
-      title: "Applied At",
-      dataIndex: "createdAt",
-      render: (value) => new Date(value).toLocaleString(),
-    },
-    {
-      title: "Actions",
-      key: "actions",
-      render: (_, item) => (
-        <Space>
-          <Button
-            type="primary"
-            icon={<CheckCircleOutlined />}
-            disabled={loadingId !== null || item.status === "approved"}
-            loading={loadingId === item._id + "approved"}
-            onClick={() => handleStatus(item._id, "approved")}
-          >
-            Approve
-          </Button>
-          <Button
-            danger
-            icon={<CloseCircleOutlined />}
-            disabled={loadingId !== null || item.status === "rejected"}
-            loading={loadingId === item._id + "rejected"}
-            onClick={() => handleStatus(item._id, "rejected")}
-          >
-            Reject
-          </Button>
-        </Space>
-      ),
-    },
-  ];
-
-  if (error)
+  if (error) {
     return (
-      <p style={{ textAlign: "center", marginTop: 80 }}>
-        Error loading candidates
-      </p>
+      <Container sx={{ mt: 10 }}>
+        <Alert severity="error">Error loading candidates</Alert>
+      </Container>
     );
+  }
 
   return (
-    <div style={{ maxWidth: 1240, margin: "80px auto" }}>
-      <Space direction="vertical" size={20} style={{ width: "100%" }}>
+    <Container maxWidth="lg" sx={{ mt: 10, mb: 5 }}>
+      <Stack spacing={3}>
+        {/* Back Button */}
         <Button
-          icon={<ArrowLeftOutlined />}
+          variant="text"
+          startIcon={<ArrowBackIcon />}
           onClick={() => navigate("/jobs")}
-          style={{ width: "fit-content" }}
+          sx={{ width: "fit-content", textTransform: "none" }}
         >
           Back to Jobs
         </Button>
-        <div>
-          <Title level={2} style={{ marginBottom: 6 }}>
+
+        <Box>
+          <Typography variant="h4" sx={{ fontWeight: 700, mb: 1 }}>
             Candidates
-          </Title>
-        </div>
-        <Card
-          bordered={false}
-          style={{
-            borderRadius: 16,
+          </Typography>
+        </Box>
+
+        <Card 
+          sx={{ 
+            borderRadius: 5, 
             boxShadow: "0 10px 24px rgba(15, 23, 42, 0.08)",
+            overflow: "hidden" // Keeps table corners rounded
           }}
         >
-          <Table
-            rowKey="_id"
-            columns={columns}
-            dataSource={candidates}
-            loading={isLoading}
-            pagination={{ pageSize: 8 }}
-            scroll={{ x: 1000 }}
+          <CandidateTable 
+            data={candidates} 
+            loadingId={loadingId} 
+            isLoading={isLoading} 
+            onApprove={(id) => handleStatus(id, "approved")} 
+            onReject={(id) => handleStatus(id, "rejected")} 
           />
         </Card>
-      </Space>
-    </div>
+      </Stack>
+    </Container>
   );
 }

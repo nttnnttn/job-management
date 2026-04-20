@@ -1,17 +1,15 @@
 import { useMemo } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Layout, Menu, Typography } from "antd";
+import { Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Typography, Box } from "@mui/material";
 import {
-  AppstoreOutlined,
-  FileTextOutlined,
-  ProfileOutlined,
-  TeamOutlined,
-  UserOutlined,
-} from "@ant-design/icons";
+  DashboardOutlined,
+  GroupOutlined,
+  PersonOutlineOutlined,
+  DescriptionOutlined,
+  AccountCircleOutlined,
+  HistoryEduOutlined,
+} from "@mui/icons-material";
 import { useAuth } from "../../hooks/useAuth";
-
-const { Sider } = Layout;
-const { Text } = Typography;
 
 export default function Sidebar() {
   const location = useLocation();
@@ -22,12 +20,12 @@ export default function Sidebar() {
   const items = useMemo(() => {
     if (role === "admin") {
       return [
-        { key: "/admin", icon: <AppstoreOutlined />, label: "Dashboard" },
-        { key: "/users", icon: <UserOutlined />, label: "Quản lý người dùng" },
-        { key: "/jobs", icon: <FileTextOutlined />, label: "Quản lý job" },
+        { key: "/admin", icon: <DashboardOutlined />, label: "Dashboard" },
+        { key: "/users", icon: <PersonOutlineOutlined />, label: "Quản lý người dùng" },
+        { key: "/jobs", icon: <DescriptionOutlined />, label: "Quản lý job" },
         {
           key: "/admin/applications",
-          icon: <TeamOutlined />,
+          icon: <GroupOutlined />,
           label: "Danh sách apply",
         },
       ];
@@ -36,14 +34,14 @@ export default function Sidebar() {
     const profileItems = [
       {
         key: "/profile",
-        icon: <ProfileOutlined />,
+        icon: <AccountCircleOutlined />,
         label: "Thông tin cá nhân",
       },
     ];
     if (role === "candidate") {
       profileItems.push({
         key: "/profile/applications",
-        icon: <FileTextOutlined />,
+        icon: <HistoryEduOutlined />,
         label: "Lịch sử ứng tuyển",
       });
     }
@@ -55,25 +53,35 @@ export default function Sidebar() {
     items[0]?.key;
 
   return (
-    <Sider
-      width={280}
-      style={{
-        background: "#fff",
-        position: "fixed",
-        left: 0,
-        top: 70,
-        bottom: 0,
-        borderRight: "1px solid #f0f0f0",
-        overflow: "auto",
+    <Drawer
+      variant="permanent"
+      anchor="left"
+      sx={{
+        width: 280,
+        flexShrink: 0,
+        [`& .MuiDrawer-paper`]: {
+          width: 280,
+          top: 70,
+          boxSizing: "border-box",
+          borderRight: "1px solid #f0f0f0",
+        },
       }}
     >
-      <Menu
-        mode="inline"
-        selectedKeys={selectedKey ? [selectedKey] : []}
-        items={items}
-        onClick={({ key }) => navigate(key)}
-        style={{ borderRight: 0, paddingTop: 12 }}
-      />
-    </Sider>
+      <Box sx={{ pt: 2 }}>
+        <List>
+          {items.map(({ key, icon, label }) => (
+            <ListItem key={key} disablePadding>
+              <ListItemButton
+                selected={selectedKey === key}
+                onClick={() => navigate(key)}
+              >
+                <ListItemIcon>{icon}</ListItemIcon>
+                <ListItemText primary={label} />
+              </ListItemButton>
+            </ListItem>
+          ))}
+        </List>
+      </Box>
+    </Drawer>
   );
 }
