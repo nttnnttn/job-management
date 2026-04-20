@@ -6,28 +6,35 @@ import { useApplyJob } from "../../../hooks/job-candidate/useApplyJob";
 import { useMyApplications } from "../../../hooks/job-candidate/useMyApplications";
 import { useAuth } from "../../../hooks/useAuth";
 import {
-  App as AntApp,
-  Button,
+  Box,
   Card,
-  Input,
-  Modal,
-  Space,
-  Table,
-  Tag,
+  CardContent,
   Typography,
-} from "antd";
-import type { ColumnsType } from "antd/es/table";
+  Button,
+  Chip,
+  Stack,
+  TextField,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Grid,
+  Snackbar,
+  IconButton,
+  CircularProgress,
+} from "@mui/material";
 import {
-  DeleteOutlined,
-  EditOutlined,
-  EyeOutlined,
-  PlusOutlined,
-  SendOutlined,
-  TeamOutlined,
-} from "@ant-design/icons";
-
-const { Title, Text } = Typography;
-const { Search } = Input;
+  Delete as DeleteIcon,
+  Edit as EditIcon,
+  Visibility as EyeIcon,
+  Add as AddIcon,
+  Send as SendIcon,
+  People as GroupIcon,
+  Search as SearchIcon,
+  Close as CloseIcon,
+} from "@mui/icons-material";
+import { DataGrid, GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 
 export default function JobListPage() {
   const [search, setSearch] = useState("");
@@ -37,8 +44,12 @@ export default function JobListPage() {
   const applyJob = useApplyJob();
   const navigate = useNavigate();
   const auth = useAuth();
-  const { message } = AntApp.useApp();
   const { data: myApplications } = useMyApplications();
+
+  // Dialog & Snackbar states
+  const [deleteJobId, setDeleteJobId] = useState<string | null>(null);
+  const [applyJobId, setApplyJobId] = useState<string | null>(null);
+  const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: "success" | "error" | "warning" }>({ open: false, message: "", severity: "success" });
 
   const role = auth?.role;
   const canCreate = role === "recruiter";
@@ -51,207 +62,326 @@ export default function JobListPage() {
     setAppliedJobs(myApplications);
   }, [myApplications]);
 
-  const handleDelete = (jobId: string) => {
-    if (!auth) return message.warning("Bạn cần đăng nhập");
-
-    Modal.confirm({
-      title: "Bạn có chắc muốn xóa job này?",
-      okText: "Xóa",
-      okButtonProps: { danger: true },
-      cancelText: "Hủy",
-      onOk: () =>
-        deleteJob.mutate(jobId, {
-          onSuccess: () => message.success("Delete success!"),
-          onError: () => message.error("Delete failed"),
-        }),
+  // Handle Deletion (with MUI Dialog)
+  const handleDeleteConfirm = () => {
+    if (!deleteJobId || !auth) return;
+    deleteJob.mutate(deleteJobId, {
+      onSuccess: () => setSnackbar({ open: true, message: "Delete success!", severity: "success" }),
+      onError: () => setSnackbar({ open: true, message: "Delete failed", severity: "error" }),
     });
+    setDeleteJobId(null);
   };
 
-  const handleApply = (jobId: string) => {
-    if (!auth) return message.warning("Bạn cần đăng nhập để apply");
-    if (auth.role !== "candidate")
-      return message.warning("Chỉ candidate mới được apply");
-    if (appliedJobs.includes(jobId))
-      return message.warning("You already applied this job");
-
-    Modal.confirm({
-      title: "Apply job này?",
-      okText: "Apply",
-      cancelText: "Hủy",
-      onOk: () =>
-        applyJob.mutate(
-          { jobId },
-          {
-            onSuccess: () => {
-              message.success("Apply success!");
-              setAppliedJobs((prev) => [...prev, jobId]);
-            },
-            onError: (err: any) => {
-              const msg = err?.message || "You already applied this job";
-              message.error(msg);
-            },
-          },
-        ),
-    });
+  // Handle Apply (with MUI Dialog)
+  const handleApplyConfirm = () => {
+    if (!applyJobId || !auth) return;
+    applyJob.mutate(
+      { jobId: applyJobId },
+      {
+        onSuccess: () => {
+          setSnackbar({ open: true, message: "Apply success!", severity: "success" });
+          setAppliedJobs((prev) => [...prev, applyJobId]);
+        },
+        onError: (err: any) => {
+          const msg = err?.message || "You already applied this job";
+          setSnackbar({ open: true, message: msg, severity: "error" });
+        },
+      }
+    );
+    setApplyJobId(null);
   };
 
-  const columns: ColumnsType<any> = useMemo(
+
+  const actionButtonSx = {
+    minHeight: 34,
+    padding: '2px 8px',
+    gap: 0.5,
+    alignItems: 'center',
+    textTransform: 'none',
+    '& .MuiButton-startIcon': {
+      margin: 0,
+    },
+  };
+
+
+  // Columns for Material UI DataGrid
+  const columns: GridColDef[] = useMemo(
     () => [
-      { title: "Title", dataIndex: "title", key: "title" },
-      { title: "Company", dataIndex: "company", key: "company" },
       {
-        title: "Location",
-        dataIndex: "location",
-        key: "location",
-        render: (value) => value || "N/A",
+        field: "title",
+        headerName: "Title",
+        flex: 1.8,
+        minWidth: 150,
       },
       {
-        title: "Status",
-        dataIndex: "status",
-        key: "status",
-        render: (value) => (
-          <Tag color={value === "open" ? "green" : "red"}>
-            {String(value).toUpperCase()}
-          </Tag>
+        field: "company",
+        headerName: "Company",
+        flex: 1.2,
+        minWidth: 120,
+      },
+      {
+        field: "location",
+        headerName: "Location",
+        flex: 1.2,
+        minWidth: 120,
+        renderCell: (p: GridRenderCellParams) => p.value || "N/A",
+      },
+      {
+        field: "status",
+        headerName: "Status",
+        flex: 1,
+        minWidth: 100,
+        renderCell: (p: GridRenderCellParams) => (
+          <Chip
+            label={String(p.value).toUpperCase()}
+            color={p.value === "open" ? "success" : "error"}
+            size="small"
+            variant="outlined"
+            sx={{ fontWeight: 600 }}
+          />
         ),
       },
       {
-        title: "Salary",
-        key: "salary",
-        render: (_, job) => `${job.salaryMin || 0} - ${job.salaryMax || 0}`,
+        field: "salary",
+        headerName: "Salary",
+        flex: 1,
+        minWidth: 120,
+        valueGetter: (_value: unknown, row: any) =>
+          `${row.salaryMin ?? 0} - ${row.salaryMax ?? 0}`,
+
       },
       {
-        title: "Updated At",
-        dataIndex: "updatedAt",
-        key: "updatedAt",
-        render: (value) => new Date(value).toLocaleString(),
+        field: "updatedAt",
+        headerName: "Updated At",
+        flex: 1.4,
+        minWidth: 180,
+        renderCell: (p: GridRenderCellParams) => new Date(p.value).toLocaleString(),
       },
       {
-        title: "Actions",
-        key: "actions",
-        fixed: "right",
-        width: 320,
-        render: (_, job) => {
+        field: "actions",
+        headerName: "Actions",
+        sortable: false,
+        filterable: false,
+        flex: 2,
+        minWidth: 340,
+        align: "center",
+        renderCell: (p: GridRenderCellParams) => {
+          const job = p.row;
           const isApplied = job.isApplied || appliedJobs.includes(job._id);
           return (
-            <Space wrap>
+            <Stack direction="row" spacing={1}>
               <Button
-                icon={<EyeOutlined />}
-                onClick={() => navigate(`/jobs/${job._id}`)}
+                variant="outlined"
+                size="small"
+                color="primary"
+                startIcon={<EyeIcon />}
+                 onClick={() => navigate(`/jobs/${job._id}${isApplied ? `?candidateId=${auth?.userId}` : ''}`)} 
+                sx={actionButtonSx}
               >
                 Detail
               </Button>
-
               {canEditDelete && (
                 <>
                   <Button
-                    icon={<EditOutlined />}
+                    variant="outlined"
+                    size="small"
+                    color="secondary"
+                    startIcon={<EditIcon />}
                     onClick={() => navigate(`/jobs/update/${job._id}`)}
+                    sx={actionButtonSx}
                   >
                     Edit
                   </Button>
                   <Button
-                    danger
-                    icon={<DeleteOutlined />}
-                    onClick={() => handleDelete(job._id)}
+                    variant="outlined"
+                    size="small"
+                    color="error"
+                    startIcon={<DeleteIcon />}
+                    sx={actionButtonSx}
+                    onClick={() => setDeleteJobId(job._id)}
                   >
                     Delete
                   </Button>
                 </>
               )}
-
               {role === "recruiter" && (
                 <Button
-                  icon={<TeamOutlined />}
+                  variant="outlined"
+                  size="small"
+                  startIcon={<GroupIcon />}
                   onClick={() => navigate(`/candidates/${job._id}`)}
+
+                  sx={actionButtonSx}
+
                 >
                   Candidates
                 </Button>
               )}
-
               {canApply && (
                 <Button
-                  type="primary"
-                  icon={<SendOutlined />}
+                  variant="contained"
+                  size="small"
+                  color="success"
+                  startIcon={<SendIcon />}
                   disabled={isApplied}
-                  onClick={() => handleApply(job._id)}
+                  onClick={() => setApplyJobId(job._id)}
                 >
                   {isApplied ? "Applied" : "Apply"}
                 </Button>
               )}
-
               {!auth && (
                 <Button
-                  type="primary"
-                  icon={<SendOutlined />}
-                  onClick={() => message.warning("Bạn cần đăng nhập để apply")}
+                  variant="contained"
+                  size="small"
+                  color="primary"
+                  startIcon={<SendIcon />}
+                  onClick={() => setSnackbar({ open: true, message: "Bạn cần đăng nhập để apply", severity: "warning" })}
                 >
                   Apply
                 </Button>
               )}
-            </Space>
+            </Stack>
           );
         },
       },
     ],
-    [appliedJobs, auth, canApply, canEditDelete, message, navigate, role],
+    [appliedJobs, auth, canApply, canEditDelete, navigate, role]
   );
 
   return (
-    <div style={{ maxWidth: isAdminMode ? "100%" : 1280, margin: "40px auto" }}>
-      <Space direction="vertical" size={20} style={{ width: "100%" }}>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            gap: 12,
-            flexWrap: "wrap",
-          }}
+    <Box
+    >
+      <Stack direction="column" spacing={3}>
+        <Box
         >
-          <div>
-            <Title level={2} style={{ marginBottom: 6 }}>
-              {isAdminMode ? "Quản lý job" : "Job List"}
-            </Title>
-          </div>
+          <Typography variant="h4"  sx={{ fontWeight: "bold" }}>
+            {isAdminMode ? "Quản lý job" : "Job List"}
+          </Typography>
           {canCreate && (
             <Button
-              type="primary"
-              icon={<PlusOutlined />}
+              variant="contained"
+              startIcon={<AddIcon />}
               size="large"
+              sx={{ minWidth: 140 }}
               onClick={() => navigate("/jobs/create")}
             >
               Create Job
             </Button>
           )}
-        </div>
+        </Box>
+        <Card elevation={4} sx={{ borderRadius: 3 }}>
+          <CardContent>
+            <Stack direction={{ xs: "column", sm: "row" }} spacing={2} >
+              <TextField
+                label="Search jobs..."
+                variant="outlined"
+                size="small"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                // PersonOutlineOutlined ={{
+                //   endAdornment: <SearchIcon color="action" sx={{ ml: 1 }} />,
+                // }}
+                sx={{ width: { xs: "100%", sm: 350 } }}
+              />
+            </Stack>
+            <Box sx={{ width: "100%" }}>
+              <DataGrid
+                autoHeight
+                rows={Array.isArray(data) ? data.map((job: any) => ({ ...job, id: job._id })) : []}
+                loading={isLoading}
+                columns={columns}
+                initialState={{
+                  pagination: {
+                    paginationModel: {
+                      pageSize: 10,
+                      page: 0,
+                    },
+                  },
+                }}
+                pageSizeOptions={[8]}
+                disableRowSelectionOnClick
 
-        <Card
-          bordered={false}
-          style={{
-            borderRadius: 16,
-            boxShadow: "0 10px 24px rgba(15, 23, 42, 0.08)",
-          }}
-        >
-          <Space direction="vertical" size={16} style={{ width: "100%" }}>
-            <Search
-              placeholder="Search jobs..."
-              allowClear
-              enterButton
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-            <Table
-              rowKey="_id"
-              columns={columns}
-              dataSource={Array.isArray(data) ? data : []}
-              loading={isLoading}
-              pagination={{ pageSize: 8 }}
-              scroll={{ x: 1200 }}
-            />
-          </Space>
+                sx={{
+                  '& .MuiDataGrid-cell': {
+                    alignItems: 'center',
+                  },
+                  '& .MuiDataGrid-columnHeaderTitle': {
+                    fontWeight: 'bold',
+                  },
+                }}
+
+              />
+            </Box>
+          </CardContent>
         </Card>
-      </Space>
-    </div>
+      </Stack>
+      {/* Delete Dialog */}
+      <Dialog
+        open={!!deleteJobId}
+        onClose={() => setDeleteJobId(null)}
+      >
+        <DialogTitle>Xóa Job</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Bạn có chắc muốn xóa job này?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>Job List
+          <Button onClick={() => setDeleteJobId(null)} color="inherit">
+            Hủy
+          </Button>
+          <Button onClick={handleDeleteConfirm} color="error">
+            Xóa
+          </Button>
+        </DialogActions>
+      </Dialog>
+      {/* Apply Dialog */}
+      <Dialog
+        open={!!applyJobId}
+        onClose={() => setApplyJobId(null)}
+        aria-labelledby="apply-dialog-title"
+      >
+        <DialogTitle id="apply-dialog-title" sx={{ fontWeight: 'bold' }}>
+          Apply Job
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Bạn có chắc chắn muốn ứng tuyển vào vị trí này không?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions sx={{ p: 2 }}>
+          <Button
+            onClick={() => setApplyJobId(null)}
+            color="inherit"
+            disabled={applyJob.isPending}
+          >
+            Hủy
+          </Button>
+          <Button
+            onClick={handleApplyConfirm}
+            variant="contained"
+            color="success" // If this errors, use sx={{ bgcolor: 'success.main' }}
+            autoFocus
+            disabled={applyJob.isPending}
+            startIcon={applyJob.isPending && <CircularProgress size={20} color="inherit" />}
+          >
+            {applyJob.isPending ? "Đang xử lý..." : "Xác nhận Apply"}
+          </Button>
+        </DialogActions>
+      </Dialog>
+      {/* Snackbar Feedback */}
+      <Snackbar
+        open={snackbar.open}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+        autoHideDuration={3200}
+        onClose={() => setSnackbar((s) => ({ ...s, open: false }))}
+        message={snackbar.message}
+        action={
+          <IconButton size="small" color="inherit" onClick={() => setSnackbar((s) => ({ ...s, open: false }))}>
+            <CloseIcon fontSize="small" />
+          </IconButton>
+        }
+      />
+    </Box>
   );
 }

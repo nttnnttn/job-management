@@ -2,11 +2,16 @@ import React from 'react';
 import { Navigate, createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ToastContainer } from 'react-toastify';
-import { App as AntApp, ConfigProvider } from 'antd';
 import 'react-toastify/dist/ReactToastify.css';
+
+// MUI Imports
+import { ThemeProvider, createTheme } from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
 
 import { setupApiClient } from './configs/setup-client';
 import { NotificationProvider } from './contexts/NotificationContext';
+
+// Page Imports
 import LoginPage from './component/login/page';
 import RegisterPage from './component/register/page';
 import HomeLayout from './component/layout/home';
@@ -23,11 +28,49 @@ import AdminApplicationsPage from './pages/admin/applications';
 
 setupApiClient();
 const queryClient = new QueryClient();
+
+// Define the MUI Theme (Matches your AntD config)
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: '#2563eb',
+    },
+    background: {
+      default: '#f8fafc', // Light grey-blue background typical for modern apps
+    },
+  },
+  shape: {
+    borderRadius: 12, // Global border radius
+  },
+  typography: {
+    fontFamily: 'Inter, Arial, sans-serif',
+  },
+  components: {
+    MuiCard: {
+      styleOverrides: {
+        root: {
+          borderRadius: 16, // AntD borderRadiusLG equivalent
+        },
+      },
+    },
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          borderRadius: 10,
+          textTransform: 'none', // Prevents all-caps buttons (standard for antd-style)
+        },
+      },
+    },
+  },
+});
+
 const router = createBrowserRouter([
   { path: '/', element: <Navigate to="/jobs" /> },
   { path: 'login', element: <LoginPage /> },
   { path: 'register', element: <RegisterPage /> },
-  { element: <HomeLayout />, children: [
+  {
+    element: <HomeLayout />,
+    children: [
       { path: 'home', element: <Navigate to="/jobs" /> },
       { path: 'admin', element: <AdminDashboardPage /> },
       { path: 'admin/applications', element: <AdminApplicationsPage /> },
@@ -40,20 +83,29 @@ const router = createBrowserRouter([
       { path: 'jobs/update/:id', element: <UpdateJobPage /> },
       { path: 'candidates/:jobId', element: <CandidatesPage /> },
       { path: 'profile/applications', element: <ProfileApplicationsPage /> },
-  ]},
+    ]
+  },
 ]);
 
 export default function App() {
   return (
-    <ConfigProvider theme={{ token: { colorPrimary: '#2563eb', borderRadius: 12, fontFamily: 'Inter, Arial, sans-serif' }, components: { Card: { borderRadiusLG: 16 }, Button: { borderRadius: 10 } } }}>
-      <AntApp>
-        <QueryClientProvider client={queryClient}>
-          <NotificationProvider>
-            <RouterProvider router={router} />
-            <ToastContainer position="top-right" autoClose={2000} hideProgressBar={false} newestOnTop closeOnClick pauseOnHover aria-label={undefined} />
-          </NotificationProvider>
-        </QueryClientProvider>
-      </AntApp>
-    </ConfigProvider>
+    <ThemeProvider theme={theme}>
+      {/* CssBaseline fixes browser inconsistencies and sets background color */}
+      <CssBaseline /> 
+      
+      <QueryClientProvider client={queryClient}>
+        <NotificationProvider>
+          <RouterProvider router={router} />
+          <ToastContainer 
+            position="top-right" 
+            autoClose={2000} 
+            hideProgressBar={false} 
+            newestOnTop 
+            closeOnClick 
+            pauseOnHover 
+          />
+        </NotificationProvider>
+      </QueryClientProvider>
+    </ThemeProvider>
   );
 }

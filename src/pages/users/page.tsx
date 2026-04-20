@@ -1,35 +1,37 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  App as AntApp,
-  Button,
-  Card,
-  Form,
-  Input,
-  Modal,
-  Select,
-  Space,
-  Table,
-  Tag,
-  Typography,
-} from "antd";
-import type { ColumnsType } from "antd/es/table";
-import { DeleteOutlined, PlusOutlined } from "@ant-design/icons";
+  Box, Container, Typography, Button, Card, Stack, Chip,
+  IconButton, Tooltip, TextField, Dialog, DialogTitle,
+  DialogContent, DialogActions, MenuItem, CircularProgress,
+  Paper, Snackbar, Alert
+} from "@mui/material";
+import { DataGrid, GridColDef } from '@mui/x-data-grid';
+
+// MUI Icons
+import DeleteIcon from '@mui/icons-material/Delete';
+import PlusIcon from '@mui/icons-material/Add';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+
 import { useAuth } from "../../hooks/useAuth";
 import { UserDto, usersControllerGetAllUsers } from "../../api-client";
 import { adminApi } from "../../api/admin.api";
 
-const { Title, Text } = Typography;
-
 export default function UsersPage() {
   const navigate = useNavigate();
   const auth = useAuth();
-  const { message } = AntApp.useApp();
+
+  // States
   const [users, setUsers] = useState<UserDto[]>([]);
   const [loading, setLoading] = useState(true);
   const [openCreateModal, setOpenCreateModal] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [form] = Form.useForm();
+  const [formData, setFormData] = useState({ email: "", password: "", role: "candidate" });
+
+  // Feedback States (Replacing antd message)
+  const [snackbar, setSnackbar] = useState<{ open: boolean, msg: string, severity: 'success' | 'error' }>({
+    open: false, msg: "", severity: 'success'
+  });
 
   const fetchUsers = async () => {
     try {
@@ -37,116 +39,106 @@ export default function UsersPage() {
       const res = await usersControllerGetAllUsers({});
       setUsers(Array.isArray(res.data) ? (res.data as UserDto[]) : []);
     } catch (err) {
-      console.error(err);
-      message.error("Không thể tải danh sách người dùng");
+      setSnackbar({ open: true, msg: "Không thể tải danh sách người dùng", severity: 'error' });
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    if (!auth) {
-      navigate("/login", { replace: true });
-      return;
-    }
-
-    if (auth.role !== "admin") {
-      navigate("/jobs", { replace: true });
-      return;
-    }
-
+    if (!auth) { navigate("/login", { replace: true }); return; }
+    if (auth.role !== "admin") { navigate("/jobs", { replace: true }); return; }
     fetchUsers();
   }, [auth?.role, navigate]);
 
   const handleCreate = async () => {
+    if (!formData.email || !formData.password) return;
     try {
-      const values = await form.validateFields();
       setSubmitting(true);
-      await adminApi.createUser(values);
-      message.success("Tạo user thành công");
+      await adminApi.createUser(formData);
+      setSnackbar({ open: true, msg: "Tạo user thành công", severity: 'success' });
       setOpenCreateModal(false);
-      form.resetFields();
+      setFormData({ email: "", password: "", role: "candidate" });
       fetchUsers();
     } catch (error: any) {
-      if (error?.errorFields) return;
-      message.error(error?.message || "Tạo user thất bại");
+      setSnackbar({ open: true, msg: error?.message || "Tạo user thất bại", severity: 'error' });
     } finally {
       setSubmitting(false);
     }
   };
 
-  const handleDelete = async (id: string) => {
-    try {
-      await adminApi.deleteUser(id);
-      message.success("Xóa user thành công");
-      fetchUsers();
-    } catch (error: any) {
-      message.error(error?.message || "Xóa user thất bại");
+  const handleDelete = async (id: string, email: string) => {
+    if (window.confirm(`Xóa user này?\n${email}`)) {
+      try {
+        await adminApi.deleteUser(id);
+        setSnackbar({ open: true, msg: "Xóa user thành công", severity: 'success' });
+        fetchUsers();
+      } catch (error: any) {
+        setSnackbar({ open: true, msg: error?.message || "Xóa user thất bại", severity: 'error' });
+      }
     }
   };
 
-  if (!auth || auth.role !== "admin") return null;
-
-  const columns: ColumnsType<UserDto> = [
+  const columns: GridColDef[] = [
     {
-      title: "Email",
-      dataIndex: "email",
-      render: (value) => <Text copyable>{value}</Text>,
-    },
-    {
-      title: "Role",
-      dataIndex: "role",
-      render: (value) => (
-        <Tag
-          color={
-            value === "admin"
-              ? "purple"
-              : value === "recruiter"
-                ? "gold"
-                : "blue"
-          }
+      field: "email",
+      headerName: "Email",
+      flex: 1,
+      minWidth: 200,
+      renderCell: (params) => (
+        <Stack
+          direction="row"
+          spacing={1}
+          sx={{ alignItems: 'center', height: '100%' }} // alignItems moved here
         >
-          {String(value).toUpperCase()}
-        </Tag>
+          <Typography variant="body2">{params.value}</Typography>
+          <IconButton size="small" onClick={() => navigator.clipboard.writeText(params.value)}>
+            <ContentCopyIcon fontSize="inherit" />
+          </IconButton>
+        </Stack>
       ),
     },
     {
-      title: "Active",
-      dataIndex: "active",
-      render: (value) => (
-        <Tag color={value ? "green" : "red"}>
-          {value ? "ACTIVE" : "INACTIVE"}
-        </Tag>
+      field: "role",
+      headerName: "Role",
+      width: 130,
+      renderCell: (params) => {
+        const val = String(params.value);
+        const color = val === "admin" ? "secondary" : val === "recruiter" ? "warning" : "primary";
+        return <Chip label={val.toUpperCase()} color={color} size="small" sx={{ fontWeight: 'bold' }} />;
+      },
+    },
+    {
+      field: "active",
+      headerName: "Active",
+      width: 120,
+      renderCell: (params) => (
+        <Chip
+          label={params.value ? "ACTIVE" : "INACTIVE"}
+          color={params.value ? "success" : "error"}
+          variant="outlined"
+          size="small"
+        />
       ),
     },
     {
-      title: "Ngày tạo",
-      dataIndex: "createdAt",
-      render: (value) => new Date(value).toLocaleString(),
+      field: "createdAt",
+      headerName: "Ngày tạo",
+      width: 180,
+      valueFormatter: (value) => new Date(value).toLocaleString(),
     },
     {
-      title: "Cập nhật",
-      dataIndex: "updatedAt",
-      render: (value) => new Date(value).toLocaleString(),
-    },
-    {
-      title: "Action",
-      key: "action",
-      width: 110,
-      render: (_, record) => (
+      field: "action",
+      headerName: "Action",
+      width: 120,
+      sortable: false,
+      renderCell: (params) => (
         <Button
-          danger
-          icon={<DeleteOutlined />}
-          onClick={() =>
-            Modal.confirm({
-              title: "Xóa user này?",
-              content: record.email,
-              okText: "Xóa",
-              okButtonProps: { danger: true },
-              cancelText: "Hủy",
-              onOk: () => handleDelete(String(record._id)),
-            })
-          }
+          variant="outlined"
+          color="error"
+          size="small"
+          startIcon={<DeleteIcon />}
+          onClick={() => handleDelete(String(params.row._id), params.row.email)}
         >
           Delete
         </Button>
@@ -154,98 +146,103 @@ export default function UsersPage() {
     },
   ];
 
+  if (!auth || auth.role !== "admin") return null;
+
   return (
-    <div style={{ maxWidth: "100%", margin: "50px auto" }}>
-      <Space direction="vertical" size={20} style={{ width: "100%" }}>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-          }}
-        >
-          <div>
-            <Title level={2} style={{ marginBottom: 6 }}>
-              Quản lý người dùng
-            </Title>
-          </div>
-          <Button
-            type="primary"
-            icon={<PlusOutlined />}
-            size="large"
-            onClick={() => setOpenCreateModal(true)}
-          >
-            Tạo user
-          </Button>
-        </div>
-
-        <Card
-          bordered={false}
-          style={{
-            borderRadius: 16,
-            boxShadow: "0 10px 24px rgba(15, 23, 42, 0.08)",
-          }}
-        >
-          <Table
-            rowKey={(record) => String(record._id)}
-            columns={columns}
-            dataSource={users}
-            loading={loading}
-            pagination={{ pageSize: 8 }}
-            scroll={{ x: 900 }}
-          />
-        </Card>
-      </Space>
-
-      <Modal
-        title="Tạo user mới"
-        open={openCreateModal}
-        onOk={handleCreate}
-        onCancel={() => setOpenCreateModal(false)}
-        confirmLoading={submitting}
-        okText="Tạo"
-        cancelText="Hủy"
+    <Box sx={{ width: "100%" }}>
+      <Stack
+        direction="row"
+        sx={{
+          justifyContent: "space-between",
+          alignItems: "center",
+          mb: 4
+        }}
       >
-        <Form
-          form={form}
-          layout="vertical"
-          initialValues={{ role: "candidate" }}
+
+        <Box>
+          <Typography variant="h4" sx={{ fontWeight: 'bold' }}>
+            Quản lý người dùng
+          </Typography>
+
+        </Box>
+        <Button
+          variant="contained"
+          startIcon={<PlusIcon />}
+          size="large"
+          onClick={() => setOpenCreateModal(true)}
+          sx={{ borderRadius: 2 }}
         >
-          <Form.Item
-            name="email"
-            label="Email"
-            rules={[
-              { required: true, message: "Nhập email" },
-              { type: "email", message: "Email không hợp lệ" },
-            ]}
-          >
-            <Input placeholder="example@gmail.com" />
-          </Form.Item>
-          <Form.Item
-            name="password"
-            label="Password"
-            rules={[
-              { required: true, message: "Nhập password" },
-              { min: 6, message: "Ít nhất 6 ký tự" },
-            ]}
-          >
-            <Input.Password placeholder="••••••••" />
-          </Form.Item>
-          <Form.Item
-            name="role"
-            label="Role"
-            rules={[{ required: true, message: "Chọn role" }]}
-          >
-            <Select
-              options={[
-                { value: "candidate", label: "Candidate" },
-                { value: "recruiter", label: "Recruiter" },
-                { value: "admin", label: "Admin" },
-              ]}
+          Tạo user
+        </Button>
+      </Stack>
+
+      <Card sx={{ borderRadius: 4, boxShadow: "0 10px 24px rgba(15, 23, 42, 0.08)" }}>
+        <Box sx={{ height: 600, width: '100%' }}>
+          <DataGrid
+            rows={users}
+            columns={columns}
+            getRowId={(row) => String(row._id)}
+            loading={loading}
+            initialState={{ pagination: { paginationModel: { pageSize: 8 } } }}
+            pageSizeOptions={[8, 20, 50]}
+            disableRowSelectionOnClick
+            sx={{ border: 0 }}
+          />
+        </Box>
+      </Card>
+
+      {/* Create User Modal */}
+      <Dialog open={openCreateModal} onClose={() => setOpenCreateModal(false)} fullWidth maxWidth="xs">
+        <DialogTitle sx={{ fontWeight: 'bold' }}>Tạo user mới</DialogTitle>
+        <DialogContent dividers>
+          <Stack spacing={2} sx={{ mt: 1 }}>
+            <TextField
+              label="Email"
+              placeholder="example@gmail.com"
+              fullWidth
+              value={formData.email}
+              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
             />
-          </Form.Item>
-        </Form>
-      </Modal>
-    </div>
+            <TextField
+              label="Password"
+              type="password"
+              fullWidth
+              value={formData.password}
+              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+            />
+            <TextField
+              select
+              label="Role"
+              fullWidth
+              value={formData.role}
+              onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+            >
+              <MenuItem value="candidate">Candidate</MenuItem>
+              <MenuItem value="recruiter">Recruiter</MenuItem>
+              <MenuItem value="admin">Admin</MenuItem>
+            </TextField>
+          </Stack>
+        </DialogContent>
+        <DialogActions sx={{ p: 2 }}>
+          <Button onClick={() => setOpenCreateModal(false)}>Hủy</Button>
+          <Button
+            variant="contained"
+            onClick={handleCreate}
+            disabled={submitting}
+          >
+            {submitting ? <CircularProgress size={24} /> : "Tạo"}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Snackbar for Notifications */}
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={4000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+      >
+        <Alert severity={snackbar.severity} variant="filled">{snackbar.msg}</Alert>
+      </Snackbar>
+    </Box>
   );
 }
