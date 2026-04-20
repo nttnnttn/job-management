@@ -1,10 +1,9 @@
 # ---- Stage 1: Build React App ----
 FROM node:22-alpine AS build
-
 WORKDIR /app
 COPY package*.json ./
 
-RUN npm ci
+RUN npm install
 COPY . .
 
 # Accept Render env vars as build args
