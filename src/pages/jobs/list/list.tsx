@@ -180,7 +180,7 @@ export default function JobListPage() {
               >
                 Detail
               </Button>
-              {canEditDelete && (
+              {canEditDelete && auth?.userId === job?.createdBy && (
                 <>
                   <Button
                     variant="outlined"
@@ -204,7 +204,7 @@ export default function JobListPage() {
                   </Button>
                 </>
               )}
-              {role === "recruiter" && (
+              {role === "recruiter" && auth?.userId === job.createdBy && (
                 <Button
                   variant="outlined"
                   size="small"
