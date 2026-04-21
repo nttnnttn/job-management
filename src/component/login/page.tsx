@@ -4,133 +4,207 @@ import { authControllerSignIn } from "../../api-client";
 import { jwtDecode } from "jwt-decode";
 import { IUserToken } from "../../hooks/useAuth";
 
+// MUI Imports
+import {
+  Container,
+  Box,
+  Typography,
+  TextField,
+  Button,
+  IconButton,
+  InputAdornment,
+  Alert,
+  Snackbar,
+  CircularProgress,
+  Paper,
+  Divider
+} from "@mui/material";
+import {
+  Visibility,
+  VisibilityOff,
+  EmailOutlined,
+  LockOutlined,
+  LoginOutlined,
+  PersonAddOutlined
+} from "@mui/icons-material";
+
 export default function LoginPage() {
   const navigate = useNavigate();
+
+  // State
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [message, setMessage] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [alert, setAlert] = useState<{ type: "success" | "error"; message: string } | null>(null);
+
+  const handleTogglePassword = () => setShowPassword(!showPassword);
 
   const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault(); //Ngăn reload
+    e.preventDefault();
+    setLoading(true);
+    setAlert(null);
 
     try {
-    const res = await authControllerSignIn({ body: {email, password}});
+      const res = await authControllerSignIn({ body: { email, password } });
 
-    if (res.data) {
-      // Xóa dấu ngoặc kép dư nếu có
-      const cleanedToken = res.data.access_token;
+      if (res.data?.access_token) {
+        const token = res.data.access_token;
 
-      const token = res.data.access_token;
-
-      // ✅ Lưu token chính xác
-      localStorage.setItem("access_token", cleanedToken);
-      console.log("Access Token lưu vào localStorage:", cleanedToken);
-
-      // decode token
+        // Save token & user ID
+        localStorage.setItem("access_token", token);
         const decoded = jwtDecode<IUserToken>(token);
-
-      // nếu là candidate → lưu candidate_id
         localStorage.setItem("user_id", decoded.userId);
 
-      setMessage("✅ Đăng nhập thành công!");
-      setTimeout(() => navigate("/home"), 1500); //Chuyển hướng
-    } else {
-      // ❌ Sửa lỗi cú pháp ở đây (dòng này đang sai trong code cũ)
-      setMessage("❌ Sai email hoặc mật khẩu!");
+        setAlert({ type: "success", message: "Đăng nhập thành công!" });
+
+        setTimeout(() => navigate("/home"), 1500);
+      } else {
+        setAlert({ type: "error", message: "Sai email hoặc mật khẩu!" });
+        setLoading(false);
+      }
+    } catch (error) {
+      console.error("Lỗi khi đăng nhập:", error);
+      setAlert({ type: "error", message: "Không thể kết nối tới server!" });
+      setLoading(false);
     }
-  } catch (error) {
-    console.error("Lỗi khi đăng nhập:", error);
-    setMessage("❌ Không thể kết nối tới server!");
-  }
   };
 
   return (
-    <div style={styles.container}>
-      <h2 style={styles.title}>Đăng nhập</h2>
-
-      <form onSubmit={handleLogin} style={styles.form}>
-        <div style={styles.inputGroup}>
-          <label>Email</label>
-          <input
-            type="email"
-            value={email}
-            placeholder="Nhập email"
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            style={styles.input}
-          />
-        </div>
-
-        <div style={styles.inputGroup}>
-          <label>Mật khẩu</label>
-          <input
-            type="password"
-            value={password}
-            placeholder="Nhập mật khẩu"
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            style={styles.input}
-          />
-        </div>
-
-        <button type="submit" style={{ ...styles.button, ...styles.loginBtn }}>
-          Đăng nhập
-        </button>
-
-        <button
-          type="button"
-          onClick={() => navigate("/register")}
-          style={{ ...styles.button, ...styles.registerBtn }}
+    <Container component="main" maxWidth="xs">
+      <Box
+        sx={{
+          marginTop: 12,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+        }}
+      >
+        <Paper
+          elevation={4}
+          sx={{
+            padding: 4,
+            width: "100%",
+            borderRadius: 3,
+            textAlign: "center",
+          }}
         >
-          Đăng ký tài khoản mới
-        </button>
-      </form>
+          <Typography
+            component="h1"
+            variant="h4"
+            gutterBottom
+            color="primary"
+            sx={{ fontWeight: "bold" }} // 🔥 Fixed: Moved style to the sx prop
+          >
+            Đăng Nhập
+          </Typography>
 
-      {message && (
-        <p style={{ marginTop: "20px", color: "#333", textAlign: "center" }}>
-          {message}
-        </p>
-      )}
-    </div>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+            Vui lòng nhập thông tin tài khoản của bạn
+          </Typography>
+
+          <Box component="form" onSubmit={handleLogin} noValidate>
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              id="email"
+              label="Địa chỉ Email"
+              name="email"
+              autoComplete="email"
+              autoFocus
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              // 🔥 Fixed for newer MUI versions:
+              slotProps={{
+                input: {
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <EmailOutlined color="action" />
+                    </InputAdornment>
+                  ),
+                },
+              }}
+            />
+
+
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              name="password"
+              label="Mật khẩu"
+              type={showPassword ? "text" : "password"}
+              id="password"
+              autoComplete="current-password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              // 🔥 Fixed for newer MUI versions:
+              slotProps={{
+                input: {
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <LockOutlined color="action" />
+                    </InputAdornment>
+                  ),
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        aria-label="toggle password visibility"
+                        onClick={handleTogglePassword}
+                        edge="end"
+                      >
+                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                },
+              }}
+            />
+
+
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              size="large"
+              disabled={loading}
+              startIcon={loading ? <CircularProgress size={20} color="inherit" /> : <LoginOutlined />}
+              sx={{ mt: 3, mb: 2, py: 1.2, borderRadius: 2, fontSize: "1rem" }}
+            >
+              {loading ? "Đang xử lý..." : "Đăng nhập"}
+            </Button>
+
+            <Divider sx={{ my: 2 }}>hoặc</Divider>
+
+            <Button
+              fullWidth
+              variant="outlined"
+              size="large"
+              color="inherit"
+              startIcon={<PersonAddOutlined />}
+              onClick={() => navigate("/register")}
+              sx={{ py: 1.2, borderRadius: 2, fontSize: "1rem" }}
+            >
+              Đăng ký tài khoản mới
+            </Button>
+          </Box>
+        </Paper>
+      </Box>
+
+      {/* Action Toast Notifications */}
+      <Snackbar
+        open={alert !== null}
+        autoHideDuration={4000}
+        onClose={() => setAlert(null)}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        {alert ? (
+          <Alert onClose={() => setAlert(null)} severity={alert.type} sx={{ width: "100%" }} variant="filled">
+            {alert.message}
+          </Alert>
+        ) : undefined}
+      </Snackbar>
+    </Container>
   );
 }
-
-const styles = {
-  container: {
-    maxWidth: "400px",
-    margin: "100px auto",
-    padding: "30px",
-    background: "#fff",
-    borderRadius: "12px",
-    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
-  },
-  title: {
-    textAlign: "center" as const,
-    marginBottom: "24px",
-    color: "#333",
-  },
-  form: {
-    display: "flex",
-    flexDirection: "column" as const,
-  },
-  inputGroup: { marginBottom: "16px" },
-  input: {
-    width: "100%",
-    padding: "10px 12px",
-    border: "1px solid #ccc",
-    borderRadius: "8px",
-    fontSize: "14px",
-  },
-  button: {
-    width: "100%",
-    padding: "10px",
-    marginTop: "10px",
-    fontSize: "16px",
-    border: "none",
-    borderRadius: "8px",
-    cursor: "pointer",
-    transition: "0.3s",
-  },
-  loginBtn: { backgroundColor: "#007bff", color: "#fff" },
-  registerBtn: { backgroundColor: "#f0f0f0", color: "#333" },
-};
