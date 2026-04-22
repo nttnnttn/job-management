@@ -2,9 +2,10 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 
-import { updateProfile, UpdateProfilePayload } from "../../api/users.api";
+import { updateProfile } from "../../api/users.api";
 import { useProfile } from "../../hooks/users/useProfile";
 import { useUpdateProfile } from "../../hooks/users/useUpdateProfile";
+import { UpdateProfileUserDto } from "../../api-client";
 
 export default function ProfilePage() {
   const navigate = useNavigate();
@@ -13,7 +14,7 @@ export default function ProfilePage() {
   const { data, isLoading, refetch } = useProfile();
   const { mutateAsync } = useUpdateProfile();
 
-  const [form, setForm] = useState<UpdateProfilePayload>({
+  const [form, setForm] = useState<UpdateProfileUserDto>({
     fullName: "",
     phone: "",
   });

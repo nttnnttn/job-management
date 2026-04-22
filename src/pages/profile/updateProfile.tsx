@@ -1,10 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
-import { updateProfile, UpdateProfilePayload } from "../../api/users.api";
 import { useProfile } from "../../hooks/users/useProfile";
 import { useUpdateProfile } from "../../hooks/users/useUpdateProfile";
-import { useMyApplications } from "../../hooks/job-candidate/useMyApplications";
 import {
   Box,
   Container,
@@ -27,6 +25,7 @@ import {
   Person as PersonIcon,
   Save as SaveIcon,
 } from "@mui/icons-material";
+import { UpdateProfileUserDto } from "../../api-client";
 
 type ProfileForm = {
   fullName: string;
@@ -40,7 +39,6 @@ export default function ProfilePage() {
   const auth = useAuth();
   const { data, isLoading, refetch } = useProfile();
   const updateMutation = useUpdateProfile();
-  const { data: myApplications, isLoading: loadingApps } = useMyApplications();
   const role = auth?.role?.toLowerCase();
 
   // Unified Form State
@@ -72,7 +70,7 @@ export default function ProfilePage() {
         phone: data.phone ?? "",
         level: data.level ?? undefined,
         // Fallback to empty array if backend doesn't support skills yet
-        // skills: data.skills ?? [], 
+        skills: data.skills ?? [], 
       });
     }
   }, [data]);
@@ -111,11 +109,8 @@ export default function ProfilePage() {
   const isChanged =
     form.fullName !== (data?.fullName || "") ||
     form.phone !== (data?.phone || "") ||
-    form.level !== data?.level
-  // todo
-  // ||
-  // JSON.stringify(form.skills) !== JSON.stringify(data?.skills || []);
-
+    form.level !== data?.level ||
+    JSON.stringify(form.skills) !== JSON.stringify(data?.skills || []);
   // Submit profile
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -130,7 +125,7 @@ export default function ProfilePage() {
     setMessage("");
 
     // Casting includes skills which will be ignored by backend until implemented
-    updateMutation.mutate(form as UpdateProfilePayload & { skills?: string[] }, {
+    updateMutation.mutate(form as UpdateProfileUserDto, {
       onSuccess: () => {
         setSeverity("success");
         setMessage("Cập nhật thành công");

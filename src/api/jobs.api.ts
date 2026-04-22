@@ -4,6 +4,7 @@ import { CreateJobDto,
   jobsControllerFindOne, 
   jobsControllerRemove, 
   jobsControllerUpdate, 
+  JobsDto, 
   UpdateJobDto } from "../api-client";
 import { Job } from "../types/job";
 
@@ -11,13 +12,13 @@ import { Job } from "../types/job";
  * GET /jobs?query
  */
 // const res = await authControllerSignIn({ body: {email, password}});
-export const getJobs = async (params?: any): Promise <Job[]> => {
+export const getJobs = async (params?: any): Promise <JobsDto[]> => {
   try {
     const res = await jobsControllerFindAll({ query: params });
     const data = res.data ?? [];
     if (!Array.isArray(data)) return [];
 
-    return data as Job[];
+    return data;
   } catch (error) {
     console.error("getJobs error:", error);
     return [];
@@ -27,7 +28,7 @@ export const getJobs = async (params?: any): Promise <Job[]> => {
 /**
  * GET /jobs/{jobId}
  */
-export const getJobById = async (jobId: string): Promise<Job> => {
+export const getJobById = async (jobId: string): Promise<JobsDto> => {
   try {
     const res = await jobsControllerFindOne({path: {id: jobId}});
 
@@ -35,7 +36,7 @@ export const getJobById = async (jobId: string): Promise<Job> => {
 
     if (!item) throw new Error("Job not found");
 
-    return item as Job;
+    return item;
   } catch (error) {
     console.error("getJobById error:", error);
     throw error;

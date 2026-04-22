@@ -26,6 +26,20 @@ import {
   Delete as DeleteIcon,
   Save as SaveIcon,
 } from "@mui/icons-material";
+import { JobWorkingType } from "../../../constants/jobConfig";
+import SkillInput from "../../../component/JobCard/skillInput";
+
+interface JobForm {
+  title: string;
+  company: string;
+  location: string;
+  salaryMin: string;
+  salaryMax: string;
+  description: string;
+  jobType: JobWorkingType; // Sử dụng Enum/Type bạn đã tạo
+  status: string;
+  skills: string[]; // Định nghĩa rõ ràng là mảng string
+}
 
 export default function UpdateJobPage() {
   const { id } = useParams();
@@ -35,14 +49,16 @@ export default function UpdateJobPage() {
   const deleteJobMutation = useDeleteJob();
 
   // Unified Form State
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<JobForm>({
     title: "",
     company: "",
     location: "",
     salaryMin: "",
     salaryMax: "",
     description: "",
+    jobType: "fulltime",
     status: "open",
+    skills: [],
   });
 
   // UI States
@@ -60,18 +76,23 @@ export default function UpdateJobPage() {
         salaryMax: job.salaryMax?.toString() || "",
         description: job.description || "",
         status: job.status || "open",
+        jobType: job.jobType || "fulltime",
+        skills: job.skills || []
       });
     }
   }, [job]);
 
-  const handleChange = (key: string, value: string) => {
+  const handleChange = <K extends keyof JobForm>(key: K, value: JobForm[K]) => {
     setForm((prev) => ({ ...prev, [key]: value }));
+  };
+  const handleSkillsChange = (newSkills: string[]) => {
+    handleChange("skills", newSkills);
   };
 
   const handleUpdate = () => {
     if (!id) return;
     setSuccessMessage("");
-    
+
     updateJob.mutate(
       {
         jobId: id,
@@ -83,12 +104,14 @@ export default function UpdateJobPage() {
           salaryMax: Number(form.salaryMax),
           description: form.description,
           status: form.status,
+          jobType: form.jobType,
+          skills: form.skills
         },
       },
       {
         onSuccess: () => {
           setSuccessMessage("Cập nhật tin tuyển dụng thành công!");
-          setTimeout(() =>  navigate("/jobs"), 1000);
+          setTimeout(() => navigate("/jobs"), 1000);
         },
       }
     );
@@ -99,7 +122,7 @@ export default function UpdateJobPage() {
     deleteJobMutation.mutate(id, {
       onSuccess: () => {
         setOpenDeleteDialog(false);
-        navigate("/jobs"); 
+        navigate("/jobs");
       },
     });
   };
@@ -116,7 +139,7 @@ export default function UpdateJobPage() {
   return (
     <Container component="main" maxWidth="md" sx={{ mt: 8, mb: 4 }}>
       <Paper elevation={3} sx={{ p: 4, borderRadius: 3 }}>
-        
+
         {/* Header Section */}
         <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
           <Box sx={{ m: 1, bgcolor: "success.main", width: 45, height: 45, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", mr: 2 }}>
@@ -143,7 +166,7 @@ export default function UpdateJobPage() {
 
         <Box component="form" sx={{ width: "100%" }}>
           <Stack spacing={3}>
-            
+
             {/* Row 1: Title & Company */}
             <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
               <TextField
@@ -203,6 +226,33 @@ export default function UpdateJobPage() {
                 slotProps={{ input: { inputProps: { min: 0 } } }}
               />
             </Stack>
+            <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
+              <Box sx={{ flex: 1 }}>
+                    <TextField
+                    select
+                    label="Hình thức làm việc"
+                    value={form.jobType}
+                    onChange={(e) => handleChange("jobType", e.target.value as JobWorkingType)}
+                    fullWidth
+                    helperText="Vui lòng chọn loại hình công việc"
+                  >
+                    <MenuItem value="fulltime">Full-time</MenuItem>
+                    <MenuItem value="parttime">Part-time</MenuItem>
+                    <MenuItem value="contract">Contract (Hợp đồng)</MenuItem>
+                  </TextField>
+              </Box>
+          
+
+               <Box sx={{ flex: 1 }}>
+                {/* Ô nhập kỹ năng */}
+                <SkillInput
+                  skills={form.skills}
+                  onChange={handleSkillsChange}
+                  label="Kỹ năng yêu cầu (Nhấn Enter để thêm)" // Có thể tùy chỉnh label
+                />
+              </Box>
+            </Stack>
+
 
             {/* Description */}
             <TextField
@@ -228,7 +278,7 @@ export default function UpdateJobPage() {
               >
                 {updateJob.isPending ? "Đang lưu..." : "Cập nhật"}
               </Button>
-              
+
               <Button
                 fullWidth
                 variant="outlined"
@@ -265,10 +315,10 @@ export default function UpdateJobPage() {
           <Button onClick={() => setOpenDeleteDialog(false)} color="inherit">
             Hủy bỏ
           </Button>
-          <Button 
-            onClick={handleDelete} 
-            color="error" 
-            variant="contained" 
+          <Button
+            onClick={handleDelete}
+            color="error"
+            variant="contained"
             disabled={deleteJobMutation.isPending}
             autoFocus
           >

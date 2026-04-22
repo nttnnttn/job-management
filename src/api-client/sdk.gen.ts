@@ -47,6 +47,16 @@ export const usersControllerCreateByAdmin = <ThrowOnError extends boolean = fals
     }
 });
 
+export const usersControllerUpdateProfile = <ThrowOnError extends boolean = false>(options: Options<UsersControllerUpdateProfileData, ThrowOnError>) => (options.client ?? client).patch<UsersControllerUpdateProfileResponses, UsersControllerUpdateProfileErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/users/updateProfile',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
 export const usersControllerSearchAll = <ThrowOnError extends boolean = false>(options?: Options<UsersControllerSearchAllData, ThrowOnError>) => (options?.client ?? client).get<UsersControllerSearchAllResponses, UsersControllerSearchAllErrors, ThrowOnError>({
     responseType: 'json',
     security: [{ scheme: 'bearer', type: 'http' }],
@@ -86,16 +96,6 @@ export const usersControllerGetProfile = <ThrowOnError extends boolean = false>(
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/users/me',
     ...options
-});
-
-export const usersControllerUpdateProfile = <ThrowOnError extends boolean = false>(options: Options<UsersControllerUpdateProfileData, ThrowOnError>) => (options.client ?? client).patch<UsersControllerUpdateProfileResponses, UsersControllerUpdateProfileErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/users/me',
-    ...options,
-    headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-    }
 });
 
 export const jobsControllerFindAll = <ThrowOnError extends boolean = false>(options?: Options<JobsControllerFindAllData, ThrowOnError>) => (options?.client ?? client).get<JobsControllerFindAllResponses, JobsControllerFindAllErrors, ThrowOnError>({ url: '/jobs', ...options });
@@ -271,7 +271,7 @@ export const notificationsControllerUpdate = <ThrowOnError extends boolean = fal
 });
 
 export const authControllerSignIn = <ThrowOnError extends boolean = false>(options: Options<AuthControllerSignInData, ThrowOnError>) => (options.client ?? client).post<AuthControllerSignInResponses, AuthControllerSignInErrors, ThrowOnError>({
-    url: '/users/login',
+    url: '/auth/login',
     ...options,
     headers: {
         'Content-Type': 'application/json',
@@ -280,7 +280,7 @@ export const authControllerSignIn = <ThrowOnError extends boolean = false>(optio
 });
 
 export const authControllerRegister = <ThrowOnError extends boolean = false>(options: Options<AuthControllerRegisterData, ThrowOnError>) => (options.client ?? client).post<AuthControllerRegisterResponses, AuthControllerRegisterErrors, ThrowOnError>({
-    url: '/users/register',
+    url: '/auth/register',
     ...options,
     headers: {
         'Content-Type': 'application/json',

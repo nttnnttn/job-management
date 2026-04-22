@@ -63,7 +63,7 @@ export default function RegisterPage() {
     }
 
     try {
-      const body: CreateUserDto & { skills?: string[] } = {
+      const body: CreateUserDto = {
         password: password,
         email: email,
         role: role,

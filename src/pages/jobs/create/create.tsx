@@ -16,11 +16,14 @@ import {
   Chip,
   IconButton,
   InputAdornment,
+  MenuItem,
 } from "@mui/material";
-import { 
+import {
   AddCircleOutlined as AddCircleOutlinedIcon,
-  Add as AddIcon 
+  Add as AddIcon
 } from "@mui/icons-material";
+import { JobWorkingType } from "../../../constants/jobConfig";
+import SkillInput from "../../../component/JobCard/skillInput";
 
 interface MyTokenPayload extends JwtPayload {
   role?: string;
@@ -37,9 +40,10 @@ export default function CreateJobPage() {
   const [salaryMin, setSalaryMin] = useState("");
   const [salaryMax, setSalaryMax] = useState("");
   const [description, setDescription] = useState("");
-  
+
   // Trạng thái Kỹ năng (Thay thế cho số lượng tuyển)
   const [currentSkill, setCurrentSkill] = useState("");
+  const [jobType, setJobType] = useState<JobWorkingType>('fulltime');
   const [skills, setSkills] = useState<string[]>([]);
 
   const [successMessage, setSuccessMessage] = useState(false);
@@ -61,18 +65,12 @@ export default function CreateJobPage() {
     }
   }, [navigate]);
 
-  // Xử lý thêm kỹ năng
-  const handleAddSkill = () => {
-    const trimmed = currentSkill.trim();
-    if (trimmed && !skills.includes(trimmed)) {
-      setSkills([...skills, trimmed]);
-      setCurrentSkill("");
-    }
+  const handleSkillsChange = (newSkills: string[]) => {
+    setSkills(newSkills);
   };
 
-  // Xử lý xóa kỹ năng
-  const handleRemoveSkill = (skillToRemove: string) => {
-    setSkills(skills.filter((skill) => skill !== skillToRemove));
+  const handleChange = (value: JobWorkingType) => {
+    setJobType(value);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -91,6 +89,7 @@ export default function CreateJobPage() {
         skills, // Gửi mảng kỹ năng lên backend
         description,
         status: "open",
+        jobType
       },
       {
         onSuccess: () => {
@@ -104,7 +103,7 @@ export default function CreateJobPage() {
   return (
     <Container component="main" maxWidth="md" sx={{ mt: 8, mb: 4 }}>
       <Paper elevation={3} sx={{ p: 4, borderRadius: 3 }}>
-        
+
         {/* Tiêu đề trang */}
         <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
           <Box sx={{ m: 1, bgcolor: "primary.main", width: 45, height: 45, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", mr: 2 }}>
@@ -131,7 +130,7 @@ export default function CreateJobPage() {
 
         <Box component="form" onSubmit={handleSubmit} sx={{ width: "100%" }}>
           <Stack spacing={3}>
-            
+
             {/* Dòng 1: Tiêu đề & Công ty */}
             <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
               <TextField
@@ -162,49 +161,7 @@ export default function CreateJobPage() {
                 onChange={(e) => setLocation(e.target.value)}
                 sx={{ flex: 1 }}
               />
-              
-              {/* Ô nhập kỹ năng */}
-              <Box sx={{ flex: 1 }}>
-                <TextField
-                  fullWidth
-                  label="Kỹ năng yêu cầu (Nhấn Enter để thêm)"
-                  placeholder="Ví dụ: React, Node.js"
-                  value={currentSkill}
-                  onChange={(e) => setCurrentSkill(e.target.value)}
-                  onKeyPress={(e) => {
-                    if (e.key === "Enter") {
-                      e.preventDefault();
-                      handleAddSkill();
-                    }
-                  }}
-                  slotProps={{
-                    input: {
-                      endAdornment: (
-                        <InputAdornment position="end">
-                          <IconButton onClick={handleAddSkill} edge="end" color="primary">
-                            <AddIcon />
-                          </IconButton>
-                        </InputAdornment>
-                      ),
-                    },
-                  }}
-                />
-                
-                {/* Khay hiển thị Tag kỹ năng */}
-                {skills.length > 0 && (
-                  <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mt: 1.5 }}>
-                    {skills.map((skill, index) => (
-                      <Chip
-                        key={index}
-                        label={skill}
-                        onDelete={() => handleRemoveSkill(skill)}
-                        color="secondary"
-                        variant="outlined"
-                      />
-                    ))}
-                  </Box>
-                )}
-              </Box>
+
             </Stack>
 
             {/* Dòng 3: Mức lương */}
@@ -228,6 +185,31 @@ export default function CreateJobPage() {
                 slotProps={{ input: { inputProps: { min: 0 } } }}
               />
             </Stack>
+            <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
+              <Box sx={{ flex: 1 }}>
+                <TextField
+                  select
+                  label="Hình thức làm việc"
+                  value={jobType}
+                  onChange={(e) => handleChange(e.target.value as JobWorkingType)}
+                  fullWidth
+                  helperText="Vui lòng chọn loại hình công việc"
+                >
+                  <MenuItem value="fulltime">Full-time</MenuItem>
+                  <MenuItem value="parttime">Part-time</MenuItem>
+                  <MenuItem value="contract">Contract (Hợp đồng)</MenuItem>
+                </TextField>
+              </Box>
+              <Box sx={{ flex: 1 }}>
+                {/* Ô nhập kỹ năng */}
+                <SkillInput
+                  skills={skills}
+                  onChange={handleSkillsChange}
+                  label="Kỹ năng yêu cầu (Nhấn Enter để thêm)" // Có thể tùy chỉnh label
+                />
+              </Box>
+            </Stack>
+
 
             {/* Mô tả công việc */}
             <TextField
