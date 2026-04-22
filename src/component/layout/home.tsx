@@ -4,6 +4,7 @@ import Navbar from './navbar';
 import { useAuth } from '../../hooks/useAuth';
 import Sidebar from './sidebar';
 import { Box } from "@mui/material";
+import Chatbot from './chatbox/chatBot';
 
 const PUBLIC_PATHS = ['/jobs'];
 
@@ -54,6 +55,7 @@ return (
       >
         <Outlet />
       </Box>
+      <Chatbot />
     </Box>
   </Box>
 );

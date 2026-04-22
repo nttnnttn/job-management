@@ -1,16 +1,13 @@
-import { usersControllerGetProfile, usersControllerUpdateProfile, UsersControllerUpdateProfileData } from "../api-client";
-import { IUser } from "../types/user";
+import { UpdateProfileUserDto, UserDto, usersControllerGetProfile, usersControllerUpdateProfile, UsersControllerUpdateProfileData } from "../api-client";
 
-export type UpdateProfilePayload = UsersControllerUpdateProfileData["body"];
-
-export const getProfile = async (): Promise<IUser> => {
+export const getProfile = async (): Promise<UserDto> => {
   const res = await usersControllerGetProfile({});
-  if ("data" in res) return res.data as unknown as IUser;
+  if ("data" in res && res.data) return res.data;
 
   throw new Error("Get profile failed");
 };
 
-export const updateProfile = async  (data: UsersControllerUpdateProfileData["body"]) => {
+export const updateProfile = async  (data: UpdateProfileUserDto) => {
   const res = await usersControllerUpdateProfile({
     body: data,
   });

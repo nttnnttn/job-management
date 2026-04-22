@@ -16,6 +16,8 @@ import { useJobDetail } from "../../../hooks/jobs/useJobDetail";
 import { useApplyJob } from "../../../hooks/job-candidate/useApplyJob";
 import { useAuth } from "../../../hooks/useAuth";
 import { useSearchParams } from "react-router-dom";
+import JobTypeCard from "../../../component/JobCard/jobWorkingType";
+import SkillListDisplay from "../../../component/JobCard/jobRequirementSkills";
 
 export default function JobDetailPage() {
   const [searchParams] = useSearchParams();
@@ -39,7 +41,7 @@ export default function JobDetailPage() {
   const handleApply = () => {
     if (!auth) return navigate("/login");
     if (auth.role !== "candidate") return alert("Chỉ ứng viên mới có thể ứng tuyển");
-    applyJob.mutate({ jobId: job._id });
+    applyJob.mutate({ jobId: job._id.toString() });
   };
 
   return (
@@ -94,12 +96,7 @@ export default function JobDetailPage() {
                   color="success"
                   sx={{ borderRadius: 2, fontWeight: 600 }}
                 />
-                <Chip
-                  icon={<AccessTimeIcon />}
-                  label="Toàn thời gian"
-                  variant="outlined"
-                  sx={{ borderRadius: 2 }}
-                />
+                <JobTypeCard key={job.toString()} job={{_id: job._id.toString(), jobType: job.jobType ?? 'fulltime'} } />
               </Box>
 
             </Box>
@@ -121,15 +118,7 @@ export default function JobDetailPage() {
 
             {/* Quyền lợi / Yêu cầu (Nếu có data) */}
             <Box>
-              <Typography variant="h5" sx={{ fontWeight: 700, mb: 3, display: 'flex', alignItems: 'center' }}>
-                <Box sx={{ width: 4, height: 24, bgcolor: 'primary.main', mr: 2, borderRadius: 1 }} />
-                Yêu cầu ứng viên
-              </Typography>
-              <Typography variant="body1" color="text.secondary" sx={{ lineHeight: 1.8 }}>
-                • Có ít nhất 1 năm kinh nghiệm ở vị trí tương đương.<br />
-                • Kỹ năng làm việc nhóm và giải quyết vấn đề tốt.<br />
-                • Sẵn sàng học hỏi công nghệ mới.
-              </Typography>
+               <SkillListDisplay title="Yêu cầu kỹ năng ứng viên" skills={job.skills || []}/>
             </Box>
           </Stack>
         </Grid>

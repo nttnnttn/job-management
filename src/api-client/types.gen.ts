@@ -8,12 +8,21 @@ export type CreateUserDto = {
     password: string;
     email: string;
     role: 'candidate' | 'recruiter';
+    skills?: Array<string>;
 };
 
 export type AdminCreateUserDto = {
     email: string;
     password: string;
     role: 'candidate' | 'recruiter' | 'admin';
+};
+
+export type UpdateProfileUserDto = {
+    level?: 'intern' | 'junior' | 'middle' | 'senior';
+    fullName?: string;
+    phone?: string;
+    email?: string;
+    skills?: Array<string>;
 };
 
 export type ObjectId = {
@@ -24,7 +33,11 @@ export type UserDto = {
     email: string;
     role: 'candidate' | 'recruiter' | 'admin';
     active: boolean;
+    skills?: Array<string>;
     _id: ObjectId;
+    fullName?: string;
+    phone?: string;
+    level?: 'intern' | 'junior' | 'middle' | 'senior';
     createdAt: string;
     updatedAt: string;
 };
@@ -43,29 +56,45 @@ export type UpdateUserDto = {
     email?: string;
     password?: string;
     role?: 'candidate' | 'recruiter';
+    skills?: Array<string>;
 };
 
 export type CreateJobDto = {
-    [key: string]: unknown;
-};
-
-export type JobsDto = {
-    _id: string;
     title: string;
     company: string;
     location: string;
-    status: 'open' | 'close';
     salaryMin?: number;
     salaryMax?: number;
+    skills?: Array<string>;
+    jobType?: 'fulltime' | 'parttime' | 'contract';
     description?: string;
-    createdAt: string;
-    updatedAt: string;
+    status: 'open' | 'close';
+};
+
+export type JobsDto = {
     isApplied?: boolean;
-    createdBy?: string;
+    _id: ObjectId;
+    title: string;
+    company: string;
+    location: string;
+    salaryMin?: number;
+    salaryMax?: number;
+    skills?: Array<string>;
+    jobType?: 'fulltime' | 'parttime' | 'contract';
+    description?: string;
+    status: 'open' | 'close';
 };
 
 export type UpdateJobDto = {
-    [key: string]: unknown;
+    title?: string;
+    company?: string;
+    location?: string;
+    salaryMin?: number;
+    salaryMax?: number;
+    skills?: Array<string>;
+    jobType?: 'fulltime' | 'parttime' | 'contract';
+    description?: string;
+    status?: 'open' | 'close';
 };
 
 export type CreateJobCandidateDto = {
@@ -257,6 +286,28 @@ export type UsersControllerCreateByAdminResponses = {
 
 export type UsersControllerCreateByAdminResponse = UsersControllerCreateByAdminResponses[keyof UsersControllerCreateByAdminResponses];
 
+export type UsersControllerUpdateProfileData = {
+    body: UpdateProfileUserDto;
+    path?: never;
+    query?: never;
+    url: '/users/updateProfile';
+};
+
+export type UsersControllerUpdateProfileErrors = {
+    /**
+     * Internal server error
+     */
+    500: unknown;
+};
+
+export type UsersControllerUpdateProfileResponses = {
+    default: {
+        [key: string]: unknown;
+    };
+};
+
+export type UsersControllerUpdateProfileResponse = UsersControllerUpdateProfileResponses[keyof UsersControllerUpdateProfileResponses];
+
 export type UsersControllerSearchAllData = {
     body?: never;
     path?: never;
@@ -383,34 +434,10 @@ export type UsersControllerGetProfileErrors = {
 };
 
 export type UsersControllerGetProfileResponses = {
-    default: {
-        [key: string]: unknown;
-    };
+    default: UserDto;
 };
 
 export type UsersControllerGetProfileResponse = UsersControllerGetProfileResponses[keyof UsersControllerGetProfileResponses];
-
-export type UsersControllerUpdateProfileData = {
-    body: UpdateUserDto;
-    path?: never;
-    query?: never;
-    url: '/users/me';
-};
-
-export type UsersControllerUpdateProfileErrors = {
-    /**
-     * Internal server error
-     */
-    500: unknown;
-};
-
-export type UsersControllerUpdateProfileResponses = {
-    default: {
-        [key: string]: unknown;
-    };
-};
-
-export type UsersControllerUpdateProfileResponse = UsersControllerUpdateProfileResponses[keyof UsersControllerUpdateProfileResponses];
 
 export type JobsControllerFindAllData = {
     body?: never;
@@ -420,6 +447,14 @@ export type JobsControllerFindAllData = {
         location?: string;
         minSalary?: number;
         maxSalary?: number;
+        title?: string;
+        company?: string;
+        salaryMin?: number;
+        salaryMax?: number;
+        skills?: Array<string>;
+        jobType?: 'fulltime' | 'parttime' | 'contract';
+        description?: string;
+        status?: 'open' | 'close';
     };
     url: '/jobs';
 };
@@ -915,7 +950,7 @@ export type AuthControllerSignInData = {
     body: LoginDto;
     path?: never;
     query?: never;
-    url: '/users/login';
+    url: '/auth/login';
 };
 
 export type AuthControllerSignInErrors = {
@@ -935,7 +970,7 @@ export type AuthControllerRegisterData = {
     body: CreateUserDto;
     path?: never;
     query?: never;
-    url: '/users/register';
+    url: '/auth/register';
 };
 
 export type AuthControllerRegisterErrors = {
