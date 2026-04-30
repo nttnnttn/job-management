@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Typography, Box } from "@mui/material";
+import { Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Box } from "@mui/material";
 import {
   DashboardOutlined,
   GroupOutlined,
@@ -39,6 +39,11 @@ export default function Sidebar() {
       },
     ];
     if (role === "candidate") {
+      profileItems.push({
+        key: `/profile/public/${user?.userId}`,
+        icon: <HistoryEduOutlined />,
+        label: "Hồ sơ công khai",
+      });
       profileItems.push({
         key: "/profile/applications",
         icon: <HistoryEduOutlined />,

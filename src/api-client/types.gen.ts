@@ -11,20 +11,6 @@ export type CreateUserDto = {
     skills?: Array<string>;
 };
 
-export type AdminCreateUserDto = {
-    email: string;
-    password: string;
-    role: 'candidate' | 'recruiter' | 'admin';
-};
-
-export type UpdateProfileUserDto = {
-    level?: 'intern' | 'junior' | 'middle' | 'senior';
-    fullName?: string;
-    phone?: string;
-    email?: string;
-    skills?: Array<string>;
-};
-
 export type ObjectId = {
     [key: string]: unknown;
 };
@@ -42,6 +28,20 @@ export type UserDto = {
     updatedAt: string;
 };
 
+export type AdminCreateUserDto = {
+    email: string;
+    password: string;
+    role: 'candidate' | 'recruiter' | 'admin';
+};
+
+export type UpdateProfileUserDto = {
+    level?: 'intern' | 'junior' | 'middle' | 'senior';
+    fullName?: string;
+    phone?: string;
+    email?: string;
+    skills?: Array<string>;
+};
+
 export type PaginatedUserDto = {
     total: number;
     limit: number;
@@ -50,13 +50,13 @@ export type PaginatedUserDto = {
 };
 
 export type UpdateUserDto = {
+    password?: string;
+    email?: string;
+    role?: 'candidate' | 'recruiter';
+    skills?: Array<string>;
     level?: 'intern' | 'junior' | 'middle' | 'senior';
     fullName?: string;
     phone?: string;
-    email?: string;
-    password?: string;
-    role?: 'candidate' | 'recruiter';
-    skills?: Array<string>;
 };
 
 export type CreateJobDto = {
@@ -119,8 +119,8 @@ export type AppliedJobResponseDto = {
 };
 
 export type RecruiterUpdateJobCandidateDto = {
-    status?: 'applied' | 'interview' | 'approved' | 'rejected' | 'hired';
     job?: string;
+    status?: 'applied' | 'interview' | 'approved' | 'rejected' | 'hired';
 };
 
 export type CreateNotificationDto = {
@@ -176,12 +176,33 @@ export type UpdateNotificationDto = {
 };
 
 export type LoginDto = {
-    password: string;
     email: string;
+    password: string;
 };
 
 export type LoginReponseDto = {
     access_token: string;
+};
+
+export type UserChatDto = {
+    content: string;
+    conversationId?: string;
+};
+
+export type MessageDto = {
+    conversationId: string;
+    role: 'user' | 'assistant' | 'system';
+    senderId: string;
+    content: string;
+    createdAt: string;
+};
+
+export type UserChatResponseDto = {
+    content: string;
+    conversationId?: string;
+    messageDto: MessageDto;
+    jobDtos?: Array<JobsDto>;
+    userDtos?: Array<UserDto>;
 };
 
 export type CreateCandidateDto = {
@@ -230,10 +251,7 @@ export type UsersControllerCreateBulkErrors = {
      * Internal server error
      */
     500: unknown;
-    default: Array<CreateUserDto>;
 };
-
-export type UsersControllerCreateBulkError = UsersControllerCreateBulkErrors[keyof UsersControllerCreateBulkErrors];
 
 export type UsersControllerCreateBulkResponses = {
     /**
@@ -243,6 +261,28 @@ export type UsersControllerCreateBulkResponses = {
 };
 
 export type UsersControllerCreateBulkResponse = UsersControllerCreateBulkResponses[keyof UsersControllerCreateBulkResponses];
+
+export type UsersControllerPublicCandidateProfileData = {
+    body?: never;
+    path: {
+        candidateId: string;
+    };
+    query?: never;
+    url: '/users/profile/public/{candidateId}';
+};
+
+export type UsersControllerPublicCandidateProfileErrors = {
+    /**
+     * Internal server error
+     */
+    500: unknown;
+};
+
+export type UsersControllerPublicCandidateProfileResponses = {
+    default: UserDto;
+};
+
+export type UsersControllerPublicCandidateProfileResponse = UsersControllerPublicCandidateProfileResponses[keyof UsersControllerPublicCandidateProfileResponses];
 
 export type UsersControllerGetAllUsersData = {
     body?: never;
@@ -320,7 +360,6 @@ export type UsersControllerSearchAllErrors = {
      * Internal server error
      */
     500: unknown;
-    default: unknown;
 };
 
 export type UsersControllerSearchAllResponses = {
@@ -443,18 +482,18 @@ export type JobsControllerFindAllData = {
     body?: never;
     path?: never;
     query?: {
-        q?: string;
-        location?: string;
-        minSalary?: number;
-        maxSalary?: number;
         title?: string;
         company?: string;
+        location?: string;
         salaryMin?: number;
         salaryMax?: number;
         skills?: Array<string>;
         jobType?: 'fulltime' | 'parttime' | 'contract';
         description?: string;
         status?: 'open' | 'close';
+        q?: string;
+        minSalary?: number;
+        maxSalary?: number;
     };
     url: '/jobs';
 };
@@ -768,10 +807,7 @@ export type NotificationsControllerFindAllErrors = {
      * Internal server error
      */
     500: unknown;
-    default: Array<NotificationDto>;
 };
-
-export type NotificationsControllerFindAllError = NotificationsControllerFindAllErrors[keyof NotificationsControllerFindAllErrors];
 
 export type NotificationsControllerFindAllResponses = {
     200: Array<NotificationDto>;
@@ -791,10 +827,7 @@ export type NotificationsControllerCreateErrors = {
      * Internal server error
      */
     500: unknown;
-    default: NotificationDto;
 };
-
-export type NotificationsControllerCreateError = NotificationsControllerCreateErrors[keyof NotificationsControllerCreateErrors];
 
 export type NotificationsControllerCreateResponses = {
     201: NotificationDto;
@@ -814,10 +847,7 @@ export type NotificationsControllerFindUnreadErrors = {
      * Internal server error
      */
     500: unknown;
-    default: Array<NotificationDto>;
 };
-
-export type NotificationsControllerFindUnreadError = NotificationsControllerFindUnreadErrors[keyof NotificationsControllerFindUnreadErrors];
 
 export type NotificationsControllerFindUnreadResponses = {
     200: Array<NotificationDto>;
@@ -837,7 +867,6 @@ export type NotificationsControllerGetUnreadCountErrors = {
      * Internal server error
      */
     500: unknown;
-    default: unknown;
 };
 
 export type NotificationsControllerGetUnreadCountResponses = {
@@ -862,10 +891,7 @@ export type NotificationsControllerMarkAsReadErrors = {
      * Internal server error
      */
     500: unknown;
-    default: NotificationDto;
 };
-
-export type NotificationsControllerMarkAsReadError = NotificationsControllerMarkAsReadErrors[keyof NotificationsControllerMarkAsReadErrors];
 
 export type NotificationsControllerMarkAsReadResponses = {
     200: NotificationDto;
@@ -885,7 +911,6 @@ export type NotificationsControllerMarkAllAsReadErrors = {
      * Internal server error
      */
     500: unknown;
-    default: unknown;
 };
 
 export type NotificationsControllerMarkAllAsReadResponses = {
@@ -910,7 +935,6 @@ export type NotificationsControllerRemoveErrors = {
      * Internal server error
      */
     500: unknown;
-    default: unknown;
 };
 
 export type NotificationsControllerRemoveResponses = {
@@ -935,10 +959,7 @@ export type NotificationsControllerUpdateErrors = {
      * Internal server error
      */
     500: unknown;
-    default: NotificationDto;
 };
-
-export type NotificationsControllerUpdateError = NotificationsControllerUpdateErrors[keyof NotificationsControllerUpdateErrors];
 
 export type NotificationsControllerUpdateResponses = {
     200: NotificationDto;
@@ -982,10 +1003,7 @@ export type AuthControllerRegisterErrors = {
      * Internal server error
      */
     500: unknown;
-    default: string;
 };
-
-export type AuthControllerRegisterError = AuthControllerRegisterErrors[keyof AuthControllerRegisterErrors];
 
 export type AuthControllerRegisterResponses = {
     /**
@@ -993,6 +1011,26 @@ export type AuthControllerRegisterResponses = {
      */
     201: unknown;
 };
+
+export type ChatbotControllerChatData = {
+    body: UserChatDto;
+    path?: never;
+    query?: never;
+    url: '/chatbot/chat';
+};
+
+export type ChatbotControllerChatErrors = {
+    /**
+     * Internal server error
+     */
+    500: unknown;
+};
+
+export type ChatbotControllerChatResponses = {
+    default: UserChatResponseDto;
+};
+
+export type ChatbotControllerChatResponse = ChatbotControllerChatResponses[keyof ChatbotControllerChatResponses];
 
 export type CandidatesControllerFindAllData = {
     body?: never;
