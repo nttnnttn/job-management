@@ -25,6 +25,7 @@ import ProfilePage from './pages/profile/updateProfile';
 import ProfileApplicationsPage from './pages/profile/application-history';
 import AdminDashboardPage from './pages/admin/dashboard';
 import AdminApplicationsPage from './pages/admin/applications';
+import PublicCvPage from './pages/profile/public';
 
 setupApiClient();
 const queryClient = new QueryClient();
@@ -68,6 +69,7 @@ const router = createBrowserRouter([
   { path: '/', element: <Navigate to="/jobs" /> },
   { path: 'login', element: <LoginPage /> },
   { path: 'register', element: <RegisterPage /> },
+  { path: 'profile/public/:candidateId', element: <PublicCvPage /> },
   {
     element: <HomeLayout />,
     children: [
@@ -83,6 +85,7 @@ const router = createBrowserRouter([
       { path: 'jobs/update/:id', element: <UpdateJobPage /> },
       { path: 'candidates/:jobId', element: <CandidatesPage /> },
       { path: 'profile/applications', element: <ProfileApplicationsPage /> },
+      
     ]
   },
 ]);

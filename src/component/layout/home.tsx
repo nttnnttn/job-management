@@ -55,7 +55,8 @@ return (
       >
         <Outlet />
       </Box>
-      <Chatbot />
+      { user && 
+        <Chatbot /> }
     </Box>
   </Box>
 );
