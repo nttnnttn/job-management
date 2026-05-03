@@ -8,6 +8,7 @@ import {
   DescriptionOutlined,
   AccountCircleOutlined,
   HistoryEduOutlined,
+  MessageOutlined,
 } from "@mui/icons-material";
 import { useAuth } from "../../hooks/useAuth";
 
@@ -27,6 +28,11 @@ export default function Sidebar() {
           key: "/admin/applications",
           icon: <GroupOutlined />,
           label: "Danh sách apply",
+        },
+        { 
+          key: "/admin/chatbot", 
+          icon: <MessageOutlined />, 
+          label: "Quản lý Chatbot" 
         },
       ];
     }

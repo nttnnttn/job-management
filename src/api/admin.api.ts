@@ -1,3 +1,5 @@
+import { chatbotControllerGetAllUserConvers, chatbotControllerGetConversactionDetail, MessageDto, PaginatedAllUserChatDto } from "../api-client";
+
 const API_BASE = process.env.REACT_APP_API_BASE || 'http://localhost:4000';
 
 const authHeaders = () => {
@@ -26,7 +28,29 @@ const request = async (path: string, options: RequestInit = {}) => {
   return res.json();
 };
 
+const getAllUserChat = async (offset: number, limit: number): Promise<PaginatedAllUserChatDto | undefined> => {
+  const res = await chatbotControllerGetAllUserConvers({
+    query: {
+      offset,
+      limit
+    }
+  })
+  return res.data;
+}
+
+const getConversactionDetail = async (conv_id: string): Promise<MessageDto[]> => {
+  const res = await chatbotControllerGetConversactionDetail({
+    path: {
+      convId: conv_id
+    }
+  })
+  return res.data || [];
+}
+
+
 export const adminApi = {
+  getAllUserChat,
+  getConversactionDetail,
   getStats: () => request('/users/admin/stats'),
   getApplications: () => request('/job-candidate/admin/overview'),
   createUser: (body: any) => request('/users', { method: 'POST', body: JSON.stringify(body) }),

@@ -205,6 +205,20 @@ export type UserChatResponseDto = {
     userDtos?: Array<UserDto>;
 };
 
+export type AllUserChatDto = {
+    conversationId: string;
+    lastActivity: string;
+    fullName: string;
+    lastMessage: string;
+};
+
+export type PaginatedAllUserChatDto = {
+    total: number;
+    limit: number;
+    offset: number;
+    results: Array<AllUserChatDto>;
+};
+
 export type CreateCandidateDto = {
     email: string;
     fullName: string;
@@ -807,7 +821,10 @@ export type NotificationsControllerFindAllErrors = {
      * Internal server error
      */
     500: unknown;
+    default: Array<NotificationDto>;
 };
+
+export type NotificationsControllerFindAllError = NotificationsControllerFindAllErrors[keyof NotificationsControllerFindAllErrors];
 
 export type NotificationsControllerFindAllResponses = {
     200: Array<NotificationDto>;
@@ -827,7 +844,10 @@ export type NotificationsControllerCreateErrors = {
      * Internal server error
      */
     500: unknown;
+    default: NotificationDto;
 };
+
+export type NotificationsControllerCreateError = NotificationsControllerCreateErrors[keyof NotificationsControllerCreateErrors];
 
 export type NotificationsControllerCreateResponses = {
     201: NotificationDto;
@@ -847,7 +867,10 @@ export type NotificationsControllerFindUnreadErrors = {
      * Internal server error
      */
     500: unknown;
+    default: Array<NotificationDto>;
 };
+
+export type NotificationsControllerFindUnreadError = NotificationsControllerFindUnreadErrors[keyof NotificationsControllerFindUnreadErrors];
 
 export type NotificationsControllerFindUnreadResponses = {
     200: Array<NotificationDto>;
@@ -867,6 +890,7 @@ export type NotificationsControllerGetUnreadCountErrors = {
      * Internal server error
      */
     500: unknown;
+    default: unknown;
 };
 
 export type NotificationsControllerGetUnreadCountResponses = {
@@ -891,7 +915,10 @@ export type NotificationsControllerMarkAsReadErrors = {
      * Internal server error
      */
     500: unknown;
+    default: NotificationDto;
 };
+
+export type NotificationsControllerMarkAsReadError = NotificationsControllerMarkAsReadErrors[keyof NotificationsControllerMarkAsReadErrors];
 
 export type NotificationsControllerMarkAsReadResponses = {
     200: NotificationDto;
@@ -911,6 +938,7 @@ export type NotificationsControllerMarkAllAsReadErrors = {
      * Internal server error
      */
     500: unknown;
+    default: unknown;
 };
 
 export type NotificationsControllerMarkAllAsReadResponses = {
@@ -935,6 +963,7 @@ export type NotificationsControllerRemoveErrors = {
      * Internal server error
      */
     500: unknown;
+    default: unknown;
 };
 
 export type NotificationsControllerRemoveResponses = {
@@ -959,7 +988,10 @@ export type NotificationsControllerUpdateErrors = {
      * Internal server error
      */
     500: unknown;
+    default: NotificationDto;
 };
+
+export type NotificationsControllerUpdateError = NotificationsControllerUpdateErrors[keyof NotificationsControllerUpdateErrors];
 
 export type NotificationsControllerUpdateResponses = {
     200: NotificationDto;
@@ -1003,7 +1035,10 @@ export type AuthControllerRegisterErrors = {
      * Internal server error
      */
     500: unknown;
+    default: string;
 };
+
+export type AuthControllerRegisterError = AuthControllerRegisterErrors[keyof AuthControllerRegisterErrors];
 
 export type AuthControllerRegisterResponses = {
     /**
@@ -1031,6 +1066,51 @@ export type ChatbotControllerChatResponses = {
 };
 
 export type ChatbotControllerChatResponse = ChatbotControllerChatResponses[keyof ChatbotControllerChatResponses];
+
+export type ChatbotControllerGetConversactionDetailData = {
+    body?: never;
+    path: {
+        convId: string;
+    };
+    query?: never;
+    url: '/chatbot/chat/detail/{convId}';
+};
+
+export type ChatbotControllerGetConversactionDetailErrors = {
+    /**
+     * Internal server error
+     */
+    500: unknown;
+};
+
+export type ChatbotControllerGetConversactionDetailResponses = {
+    default: Array<MessageDto>;
+};
+
+export type ChatbotControllerGetConversactionDetailResponse = ChatbotControllerGetConversactionDetailResponses[keyof ChatbotControllerGetConversactionDetailResponses];
+
+export type ChatbotControllerGetAllUserConversData = {
+    body?: never;
+    path?: never;
+    query: {
+        limit: number;
+        offset: number;
+    };
+    url: '/chatbot/conversations';
+};
+
+export type ChatbotControllerGetAllUserConversErrors = {
+    /**
+     * Internal server error
+     */
+    500: unknown;
+};
+
+export type ChatbotControllerGetAllUserConversResponses = {
+    200: PaginatedAllUserChatDto;
+};
+
+export type ChatbotControllerGetAllUserConversResponse = ChatbotControllerGetAllUserConversResponses[keyof ChatbotControllerGetAllUserConversResponses];
 
 export type CandidatesControllerFindAllData = {
     body?: never;
