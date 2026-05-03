@@ -26,6 +26,7 @@ import ProfileApplicationsPage from './pages/profile/application-history';
 import AdminDashboardPage from './pages/admin/dashboard';
 import AdminApplicationsPage from './pages/admin/applications';
 import PublicCvPage from './pages/profile/public';
+import ChatHistoryPage from './pages/admin/conversationHistory';
 
 setupApiClient();
 const queryClient = new QueryClient();
@@ -76,6 +77,7 @@ const router = createBrowserRouter([
       { path: 'home', element: <Navigate to="/jobs" /> },
       { path: 'admin', element: <AdminDashboardPage /> },
       { path: 'admin/applications', element: <AdminApplicationsPage /> },
+      { path: 'admin/chatbot', element: <ChatHistoryPage /> },
       { path: 'users', element: <UsersPage /> },
       { path: 'profile', element: <ProfilePage /> },
       { path: 'candidates', element: <CandidatesPage /> },
